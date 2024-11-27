@@ -191,7 +191,8 @@ async function check_if_canvas_is_filled() {
 	var result = normalArray.map((val, ind) => {
 		if (val != 0) {
 			return 'filled';
-			break;
+		} else {
+			return '';
 		}
 	}).filter((x) => x.length != 0);
 	console.log("result: ", result);
