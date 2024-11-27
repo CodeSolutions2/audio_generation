@@ -22,7 +22,9 @@
 <button id="resize_try0" onclick="resize_try0()">resize_try0</button>
 <button id="resize_try1" onclick="resize_try1()">resize_try1</button>
 <button id="resize_try2" onclick="resize_try2()">resize_try2</button>	
-<button id="resize_try3" onclick="resize_try3()">resize_try3</button>	
+<button id="resize_try3" onclick="resize_try3()">resize_try3</button>
+<button id="resize_try4" onclick="resize_try4()">resize_try4</button>	
+<button id="resize_try5" onclick="resize_try5()">resize_try5</button>
 
 <div id="data_display" style="display:block; text-align: left; width: 600px;"></div>
 <br>
@@ -317,6 +319,8 @@ async function resize_try2() {
 	};
 	image.src = url;
 
+	// RESULT: resizes the canvas, but url undefined
+
 }
 
 
@@ -327,13 +331,12 @@ async function resize_try3() {
 
 	// [0] get copy of original canvas image
 	var [ASCII_str, base64_string] = await convert_canvas_to_base64str(ctx, canvasElement)
-		
-	ASCII_str = 'data:image/jpeg;base64,' + ASCII_str;
 	
-	var url = await fetch(ASCII_str)
+	// var url = await fetch('data:image/jpeg;base64,' + ASCII_str) // NetworkError when attempting to fetch resource
+	var url = await fetch('data:image/jpeg;base64,' + base64_string)
 		.then(response => response.blob())
 		.then(async function(blob_object) {
-			// console.log('blob_object: ', blob_object)
+			console.log('blob_object: ', blob_object)
 			return URL.createObjectURL(blob_object);
 		});
 	console.log('url: ', url);
@@ -355,6 +358,75 @@ async function resize_try3() {
 
 	// RESULT: resizes the canvas, but image is twice as dark
 }
+
+
+async function resize_try4() {
+
+	// Use toDataURL, resize canvas, make new image
+
+	// [0] get copy of original canvas image
+	var [ASCII_str, base64_string] = await convert_canvas_to_base64str(ctx, canvasElement)
+	
+	var url = await fetch(ASCII_str)
+		.then(response => response.blob())
+		.then(async function(blob_object) {
+			console.log('blob_object: ', blob_object)
+			return URL.createObjectURL(blob_object);
+		});
+	console.log('url: ', url);
+
+	// [1] resize canvas
+	const width_NEW = document.getElementById("width_NEW").value;
+	const height_NEW = document.getElementById("height_NEW").value;
+	
+	canvasElement.width = width_NEW;
+	canvasElement.height = height_NEW;
+
+	// [2] redraw url on resized canvas
+	const image = new Image();
+	image.crossOrigin = "anonymous";
+	image.onload = async () => {
+		ctx.drawImage(image, 0, 0, width_NEW, height_NEW, 0, 0, width_NEW, height_NEW)
+	};
+	image.src = url;
+
+	// RESULT: resizes the canvas, but image is twice as dark
+}
+
+
+async function resize_try5() {
+
+	// Use toDataURL, resize canvas, make new image
+
+	// [0] get copy of original canvas image
+	var [ASCII_str, base64_string] = await convert_canvas_to_base64str(ctx, canvasElement)
+	
+	var url = await fetch(base64_string)
+		.then(response => response.blob())
+		.then(async function(blob_object) {
+			console.log('blob_object: ', blob_object)
+			return URL.createObjectURL(blob_object);
+		});
+	console.log('url: ', url);
+
+	// [1] resize canvas
+	const width_NEW = document.getElementById("width_NEW").value;
+	const height_NEW = document.getElementById("height_NEW").value;
+	
+	canvasElement.width = width_NEW;
+	canvasElement.height = height_NEW;
+
+	// [2] redraw url on resized canvas
+	const image = new Image();
+	image.crossOrigin = "anonymous";
+	image.onload = async () => {
+		ctx.drawImage(image, 0, 0, width_NEW, height_NEW, 0, 0, width_NEW, height_NEW)
+	};
+	image.src = url;
+
+	// RESULT: resizes the canvas, but image is twice as dark
+}
+
 
 
 	
