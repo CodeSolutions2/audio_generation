@@ -212,21 +212,28 @@ async function resize() {
 	// If not filled, notation to draw on canvas
 	if (result == "filled") {
 
-		// make the canvas an ASCII_str
-		const [ASCII_str, base64_string] = convert_canvas_to_base64str(ctx, canvasElement)
 
+		// Way 0
 		// resize the existing canvas
 		canvasElement.width = document.getElementById("width_NEW").value;
 		canvasElement.height = document.getElementById("height_NEW").value;
-		
+
+
+		// Way 1
+		// make the canvas an ASCII_str
+		const [ASCII_str, base64_string] = await convert_canvas_to_base64str(ctx, canvasElement)
+
+		// resize the existing canvas
+		// canvasElement.width = document.getElementById("width_NEW").value;
+		// canvasElement.height = document.getElementById("height_NEW").value;
 		
 		// Put the ASCII_str on a URL
 		await fetch(base64_string)
 			.then(response => response.blob())
 			.then(async function(blob_object) {
 
-				
-				document.getElementById("canvasElement_id").src = URL.createObjectURL(blob_object);
+				console.log('blob_object: ', blob_object)
+				// document.getElementById("canvasElement_id").src = URL.createObjectURL(blob_object);
 			});
 
 	} else {
