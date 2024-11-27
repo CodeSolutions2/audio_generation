@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head></head>
+<body>
+
+
+<label for="select_dropdown_option_label">Select a choice:</label>
+<select name="dropdown_options" id="dropdown_options" style="display:block">
+  <option value="---">Select an option</option>
+  <option value="resize">resize</option>
+</select>
+
+
+<input type="text" name="width_NEW" id="width_NEW" value="" style="display:none;">
+<input type="text" name="height_NEW" id="height_NEW" value="" style="display:none;">
+
+<button id="run_selection" onclick="run_selection()">run_selection</button>
+  
+<script>
+
+
+// -------------------------------------------------
+
+window.addEventListener('beforeunload', function() {
+	window.location.href = window.location.href + '?nocache=' + new Date().getTime();
+});
+
+
+// -------------------------------------------------
+
+  var canvasElement;
+  var ctx;
+
+   var width_ORG = 256;
+  var height_ORG = 256;
+  
+async function make_initial_canvas() {
+
+// -------------------------
+  // Create a canvas element
+	canvasElement = document.createElement('canvas');
+
+	// Set attributes of the canvas
+	canvasElement.width = width_ORG;
+	canvasElement.height = height_ORG;
+  	canvasElement.id = "canvasElement_id";
+	canvasElement.class = "canvasElement_className";
+	
+	// Get the 2D rendering context of the canvas
+	ctx = canvasElement.getContext("2d");
+  
+  // Add the canvas to the DOM
+	document.getElementById('data_display').appendChild(canvasElement);
+
+  // -------------------------
+  
+  // Make a canvas border
+	document.getElementById('canvasElement_id').style.border = '1px solid black';
+
+  // -------------------------
+  
+  // Color the canvas
+  // await color_the_canvas();
+  
+  // OR
+
+  // Leave the canvas blank
+
+  // -------------------------
+
+}
+
+
+async function color_the_canvas() {
+  // -------------------------
+  // Color the canvas
+  var r = Math.floor(Math.random()*255);
+	var g = Math.floor(Math.random()*255);
+  	var b = Math.floor(Math.random()*255);
+  	const alpha = Math.floor(Math.random()*100);
+  
+  	// ----------------------
+  
+  	// Make r, g, b and interesting color range.
+	// Make r from 1 to 255 if r>1, then output=r else output=1
+	r = r>0 ? r : 1;
+	g = g>0 ? g : 1;
+	b = b>0 ? b : 1;
+
+	// ----------------------
+	
+	ctx.fillStyle = `rgb(${r} ${g} ${b} / ${alpha}%)`;
+	ctx.fillRect(0, 0, canvasElement.width, canvasElement.height);
+}
+
+
+  
+  
+async function check_if_canvas_is_filled() {
+  
+    // Get canvas image
+	const uint8ClampedArray = await ctx.getImageData(0, 0, width, height); // TypedArray  Uint8ClampedArray
+	// console.log('uint8ClampedArray: ', uint8ClampedArray);
+  
+	// Convert TypedArray to normalArray
+	var normalArray = await Array.from(uint8ClampedArray.data);
+
+  // Modify some of the pixels, to determine if there is a change
+	const color_name = ['r', 'g', 'b', 'alpha'];
+  var r_sum = 0;
+  var g_sum = 0;
+  var b_sum = 0;
+	for ( let i=0; i<normalArray.length; i+=color_name.length ) {
+
+    // Check for the first value that is not "blank"
+    // if (normalArray[i] != 0 || normalArray[i+1] != 0 || normalArray[i+2] != 0) {
+    //    break;
+    // }
+
+    // But, what is the value of a "not blank" value?
+    // First find the value of a "not blank" value
+      r_sum = r_sum + normalArray[i];
+      g_sum = g_sum + normalArray[i+1];
+			b_sum = b_sum + normalArray[i+2];
+	}
+  console.log("r_sum: ", r_sum);
+  console.log("g_sum: ", g_sum);
+  console.log("b_sum: ", b_sum);
+
+  // Calculate the avg
+  const num_of_points = normalArray.length/color_name.length;
+  const r_avg = r_sum/num_of_points;
+  const g_avg = g_sum/num_of_points;
+  const b_avg = b_sum/num_of_points;
+  console.log("r_avg: ", r_avg);
+  console.log("g_avg: ", g_avg);
+  console.log("b_avg: ", b_avg);
+
+  
+}
+
+
+async function resize() {
+
+  // Check if canvas is filled
+  
+
+
+  // -------------------------
+
+  // Use the user's input width_NEW, height_NEW to resize the existing canvas
+  document.getElementById("")
+  
+}
+  
+// -------------------------------------------------
+  
+</script>
+</body>
+</html>
