@@ -7,6 +7,9 @@
 <label for="select_dropdown_option_label">Select a choice:</label>
 <select name="dropdown_options" id="dropdown_options" style="display:block">
   <option value="---">Select an option</option>
+  <option value="make_initial_canvas">make_initial_canvas</option>
+  <option value="color_the_canvas">color_the_canvas</option>
+  <option value="check_if_canvas_is_filled">check_if_canvas_is_filled</option>
   <option value="resize">resize</option>
 </select>
 
@@ -23,8 +26,51 @@
 
 window.addEventListener('beforeunload', function() {
 	window.location.href = window.location.href + '?nocache=' + new Date().getTime();
+	document.getElementById("dropdown_options").selectedIndex = 0;
 });
 
+// -------------------------------------------------
+	
+async function processEvent_dropdown_options(event) {
+	
+	if (document.getElementById("dropdown_options").selectedIndex == 4) {
+		document.getElementById("width_NEW").style.display = 'block';
+		document.getElementById("height_NEW").style.display = 'block';
+		
+	} else {
+		document.getElementById("width_NEW").style.display = 'none';
+		document.getElementById("height_NEW").style.display = 'none';
+	}
+	
+}
+
+document.getElementById("dropdown_options").addEventListener("change", processEvent_dropdown_options, false);
+	
+// -------------------------------------------------
+
+async function run_selection() {
+	
+	// Put in a function in <script>
+	var dropdown_option_type = document.getElementById("dropdown_options").value;
+
+	if (dropdown_option_type == 'make_initial_canvas') {
+		await make_initial_canvas();
+		
+	} else if (dropdown_option_type == 'color_the_canvas') {
+		await color_the_canvas();
+
+	} else if (dropdown_option_type == 'check_if_canvas_is_filled') {
+		await check_if_canvas_is_filled();
+
+	} else if (dropdown_option_type == 'resize') {
+		await resize();
+		
+	} else {
+		console.log("No dropdown type selected"); 
+	}
+
+
+}
 
 // -------------------------------------------------
 
@@ -33,7 +79,9 @@ window.addEventListener('beforeunload', function() {
 
    var width_ORG = 256;
   var height_ORG = 256;
-  
+
+// -------------------------------------------------
+
 async function make_initial_canvas() {
 
 // -------------------------
@@ -99,7 +147,7 @@ async function color_the_canvas() {
 async function check_if_canvas_is_filled() {
   
     // Get canvas image
-	const uint8ClampedArray = await ctx.getImageData(0, 0, width, height); // TypedArray  Uint8ClampedArray
+	const uint8ClampedArray = await ctx.getImageData(0, 0, canvasElement.width, canvasElement.height); // TypedArray  Uint8ClampedArray
 	// console.log('uint8ClampedArray: ', uint8ClampedArray);
   
 	// Convert TypedArray to normalArray
