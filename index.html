@@ -252,7 +252,7 @@ async function resize_try0() {
 	// [2] redraw url on resized canvas
 	canvasElement.src = url;
 
-	// RESULT: resizes the canvas, but does not put reduced image on top
+	// RESULT: resizes the canvas, but blank image
 }
 
 
@@ -331,9 +331,10 @@ async function resize_try3() {
 
 	// [0] get copy of original canvas image
 	var [ASCII_str, base64_string] = await convert_canvas_to_base64str(ctx, canvasElement)
+	const base64_string_w_header = 'data:image/jpeg;base64,' + base64_string;
+	console.log('base64_string_w_header: ', base64_string_w_header);
 	
-	// var url = await fetch('data:image/jpeg;base64,' + ASCII_str) // NetworkError when attempting to fetch resource
-	var url = await fetch('data:image/jpeg;base64,' + base64_string)
+	var url = await fetch(base64_string_w_header)
 		.then(response => response.blob())
 		.then(async function(blob_object) {
 			console.log('blob_object: ', blob_object)
@@ -356,8 +357,10 @@ async function resize_try3() {
 	};
 	image.src = url;
 
-	// RESULT: resizes the canvas, but image is twice as dark
+	// RESULT: resizes the canvas, but blank image
 }
+
+
 
 
 async function resize_try4() {
@@ -366,40 +369,7 @@ async function resize_try4() {
 
 	// [0] get copy of original canvas image
 	var [ASCII_str, base64_string] = await convert_canvas_to_base64str(ctx, canvasElement)
-	
-	var url = await fetch(ASCII_str)
-		.then(response => response.blob())
-		.then(async function(blob_object) {
-			console.log('blob_object: ', blob_object)
-			return URL.createObjectURL(blob_object);
-		});
-	console.log('url: ', url);
-
-	// [1] resize canvas
-	const width_NEW = document.getElementById("width_NEW").value;
-	const height_NEW = document.getElementById("height_NEW").value;
-	
-	canvasElement.width = width_NEW;
-	canvasElement.height = height_NEW;
-
-	// [2] redraw url on resized canvas
-	const image = new Image();
-	image.crossOrigin = "anonymous";
-	image.onload = async () => {
-		ctx.drawImage(image, 0, 0, width_NEW, height_NEW, 0, 0, width_NEW, height_NEW)
-	};
-	image.src = url;
-
-	// RESULT: resizes the canvas, but image is twice as dark
-}
-
-
-async function resize_try5() {
-
-	// Use toDataURL, resize canvas, make new image
-
-	// [0] get copy of original canvas image
-	var [ASCII_str, base64_string] = await convert_canvas_to_base64str(ctx, canvasElement)
+	console.log('base64_string: ', base64_string);
 	
 	var url = await fetch(base64_string)
 		.then(response => response.blob())
