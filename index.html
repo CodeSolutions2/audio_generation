@@ -22,7 +22,7 @@
 <button id="resize_try0" onclick="resize_try0()">resize_try0</button>
 <button id="resize_try1" onclick="resize_try1()">resize_try1</button>
 <button id="resize_try2" onclick="resize_try2()">resize_try2</button>	
-
+<button id="resize_try3" onclick="resize_try3()">resize_try3</button>	
 
 <div id="data_display" style="display:block; text-align: left; width: 600px;"></div>
 <br>
@@ -220,36 +220,6 @@ async function resize() {
 	// If not filled, notation to draw on canvas
 	if (result == "filled") {
 
-		// Way 0: resize the existing canvas and maybe the image will be automatically resized
-		// canvasElement.width = document.getElementById("width_NEW").value;
-		// canvasElement.height = document.getElementById("height_NEW").value;
-		// RESULT: a resized blank canvas is only shown
-
-		// Way 1: make ImageData like that of FileReader (base64string) - then blob - url
-		// Put the ASCII_str on a URL  data:image/jpeg;base64,/
-		// make the canvas an ASCII_str
-		// const [ASCII_str, base64_string] = await convert_canvas_to_base64str(ctx, canvasElement)
-		// maybe put image string before
-		// await fetch(base64_string)
-		// 	.then(response => response.blob())
-		// 	.then(async function(blob_object) {
-				// resize the existing canvas
-				// canvasElement.width = document.getElementById("width_NEW").value;
-				// canvasElement.height = document.getElementById("height_NEW").value;
-
-				// console.log('blob_object: ', blob_object)
-				// document.getElementById("canvasElement_id").src = URL.createObjectURL(blob_object);
-			// });
-		// RESULT: a resized blank canvas is only shown
-
-
-		
-		// Way 2: use canvas ImageData
-		// Get existing canvas image
-		// const uint8ClampedArray = await ctx.getImageData(0, 0, canvasElement.width, canvasElement.height);
-		// console.log('uint8ClampedArray: ', uint8ClampedArray);
-
-
 		
 
 
@@ -315,7 +285,7 @@ async function resize_try1() {
 
 	
 
-async function resize_try1() {
+async function resize_try2() {
 
 	// Use src, resize canvas, make new image
 
@@ -350,6 +320,41 @@ async function resize_try1() {
 }
 
 
+
+async function resize_try3() {
+
+	// Use toDataURL, resize canvas, make new image
+
+	// [0] get copy of original canvas image
+	var [ASCII_str, base64_string] = await convert_canvas_to_base64str(ctx, canvasElement)
+		
+	ASCII_str = 'data:image/jpeg;base64,' + ASCII_str;
+	
+	var url = await fetch(ASCII_str)
+		.then(response => response.blob())
+		.then(async function(blob_object) {
+			// console.log('blob_object: ', blob_object)
+			return URL.createObjectURL(blob_object);
+		});
+	console.log('url: ', url);
+
+	// [1] resize canvas
+	const width_NEW = document.getElementById("width_NEW").value;
+	const height_NEW = document.getElementById("height_NEW").value;
+	
+	canvasElement.width = width_NEW;
+	canvasElement.height = height_NEW;
+
+	// [2] redraw url on resized canvas
+	const image = new Image();
+	image.crossOrigin = "anonymous";
+	image.onload = async () => {
+		ctx.drawImage(image, 0, 0, width_NEW, height_NEW, 0, 0, width_NEW, height_NEW)
+	};
+	image.src = url;
+
+	// RESULT: resizes the canvas, but image is twice as dark
+}
 
 
 	
