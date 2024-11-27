@@ -19,6 +19,10 @@
 
 <button id="run_selection" onclick="run_selection()">run_selection</button>
 
+<button id="resize_try0" onclick="resize_try0()">resize_try0</button>
+<button id="resize_try1" onclick="resize_try1()">resize_try1</button>
+	
+
 
 <div id="data_display" style="display:block; text-align: left; width: 600px;"></div>
 <br>
@@ -133,6 +137,7 @@ async function make_blank_canvas() {
 }
 
 
+	
 async function color_the_canvas() {
   // -------------------------
   // Color the canvas
@@ -246,16 +251,21 @@ async function resize() {
 
 
 		
+
+		
 		// Way 3 : make a new image object with old image from canvasElement, draw image on the canvas with a different width and height
 		// Re-define how to draw the image on teh canvas
 		var sx = 0; // for cropping the image: distance from the [original left edge of the image] to the [deisred left edge of image]
 		var sy = 0; // for cropping the image: distance from the [original top edge of the image] to the [deisred top edge of image]
-		var image_width = canvasElement.width; // for cropping the image: desired image width
-		var image_height = canvasElement.height; // for cropping the image: desired image height
+		// var image_width = canvasElement.width; // for cropping the image: desired image width
+		// var image_height = canvasElement.height; // for cropping the image: desired image height
+		var image_width = document.getElementById("width_NEW").value; // for cropping the image: desired image width
+		var image_height = document.getElementById("height_NEW").value; // for cropping the image: desired image height
+		
 		var dx = 0;  // location to place image on canvas: distance from the [left edge of the canvas] to the [left edge of image]
 		var dy = 0;  // location to place image on canvas: distance from the [top edge of the canvas] to the [top edge of image]
 		var dWidth = document.getElementById("width_NEW").value; // for resizing the image on the canvas: desired image width on canvas
-		var dHeight = document.getElementById("width_NEW").value; // for resizing the image on the canvas: desired image width on canvas
+		var dHeight = document.getElementById("height_NEW").value; // for resizing the image on the canvas: desired image width on canvas
 
 		
 		// canvasElement.width = dWidth;
@@ -264,19 +274,63 @@ async function resize() {
 		const image = new Image();
 		image.crossOrigin = "anonymous";
 		image.onload = async () => {
-		         ctx.drawImage(image, sx, sy, image_width, image_height, dx, dy, dWidth, dHeight)
+			ctx.drawImage(image, sx, sy, image_width, image_height, dx, dy, dWidth, dHeight)
 		};
 		image.src = document.getElementById("canvasElement_id").src;
 
 		// Putting this after shows an empty resized canvas
-		// canvasElement.width = dWidth;
-		// canvasElement.height = dHeight;
+		// 
 		
 
 	} else {
 		document.getElementById("notification") = "fill the blank canvas before resizing"
 	}
   
+}
+
+
+
+async function resize_try0() {
+	
+	await make_blank_canvas();
+	await color_the_canvas();
+
+	var sx = 0; // for cropping the image: distance from the [original left edge of the image] to the [deisred left edge of image]
+	var sy = 0; // for cropping the image: distance from the [original top edge of the image] to the [deisred top edge of image]
+	// var image_width = canvasElement.width; // for cropping the image: desired image width
+	// var image_height = canvasElement.height; // for cropping the image: desired image height
+	var image_width = document.getElementById("width_NEW").value; // for cropping the image: desired image width
+	var image_height = document.getElementById("height_NEW").value; // for cropping the image: desired image height
+	
+	var dx = 0;  // location to place image on canvas: distance from the [left edge of the canvas] to the [left edge of image]
+	var dy = 0;  // location to place image on canvas: distance from the [top edge of the canvas] to the [top edge of image]
+	var dWidth = document.getElementById("width_NEW").value; // for resizing the image on the canvas: desired image width on canvas
+	var dHeight = document.getElementById("height_NEW").value; // for resizing the image on the canvas: desired image width on canvas
+
+	const image = new Image();
+	image.crossOrigin = "anonymous";
+	image.onload = async () => {
+		ctx.drawImage(image, sx, sy, image_width, image_height, dx, dy, dWidth, dHeight)
+	};
+
+}
+
+
+async function resize_try1() {
+	await make_blank_canvas();
+	await color_the_canvas();
+
+
+	// Way 2: make the canvas a url
+	var url = document.getElementById("canvasElement_id").toDataURL('image/jpeg');
+	
+
+	// Resize canvas
+	canvasElement.width = document.getElementById("width_NEW").value;
+	canvasElement.height = document.getElementById("height_NEW").value;
+
+	// Redraw url on resized canvas
+	canvasElement.src = url;
 }
   
 // -------------------------------------------------
