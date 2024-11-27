@@ -7,7 +7,7 @@
 <label for="select_dropdown_option_label">Select a choice:</label>
 <select name="dropdown_options" id="dropdown_options" style="display:block">
   <option value="---">Select an option</option>
-  <option value="make_initial_canvas">make_initial_canvas</option>
+  <option value="make_blank_canvas">make_blank_canvas</option>
   <option value="color_the_canvas">color_the_canvas</option>
   <option value="check_if_canvas_is_filled">check_if_canvas_is_filled</option>
   <option value="resize">resize</option>
@@ -21,6 +21,18 @@
 
 
 <div id="data_display" style="display:block; text-align: left; width: 600px;"></div>
+<br>
+<div id="notification"></div>
+
+
+<!-- ---------------------------------------- -->
+	
+<style>
+div#notification { position: relative; color: #3236a8; }
+</style>
+
+<!-- ---------------------------------------- -->
+	
 <script>
 
 
@@ -55,8 +67,8 @@ async function run_selection() {
 	// Put in a function in <script>
 	var dropdown_option_type = document.getElementById("dropdown_options").value;
 
-	if (dropdown_option_type == 'make_initial_canvas') {
-		await make_initial_canvas();
+	if (dropdown_option_type == 'make_blank_canvas') {
+		await make_blank_canvas();
 		
 	} else if (dropdown_option_type == 'color_the_canvas') {
 		await color_the_canvas();
@@ -68,7 +80,7 @@ async function run_selection() {
 		await resize();
 		
 	} else {
-		console.log("No dropdown type selected"); 
+		document.getElementById("notification") = "No dropdown type selected";
 	}
 
 
@@ -84,7 +96,7 @@ async function run_selection() {
 
 // -------------------------------------------------
 
-async function make_initial_canvas() {
+async function make_blank_canvas() {
 
 // -------------------------
   // Create a canvas element
@@ -147,64 +159,114 @@ async function color_the_canvas() {
   
   
 async function check_if_canvas_is_filled() {
-  
-    // Get canvas image
+	
+	// Get canvas image
 	const uint8ClampedArray = await ctx.getImageData(0, 0, canvasElement.width, canvasElement.height); // TypedArray  Uint8ClampedArray
 	// console.log('uint8ClampedArray: ', uint8ClampedArray);
   
 	// Convert TypedArray to normalArray
 	var normalArray = await Array.from(uint8ClampedArray.data);
 
-  // Modify some of the pixels, to determine if there is a change
+	// ----------------------
+	
+	// A blank canvas has rgb values that are zero.
+	// Modify some of the pixels, to determine if there is a change
 	const color_name = ['r', 'g', 'b', 'alpha'];
-  var r_sum = 0;
-  var g_sum = 0;
-  var b_sum = 0;
+	var r_sum = 0;
+	var g_sum = 0;
+	var b_sum = 0;
 	for ( let i=0; i<normalArray.length; i+=color_name.length ) {
-
-    // Check for the first value that is not "blank"
-    // if (normalArray[i] != 0 || normalArray[i+1] != 0 || normalArray[i+2] != 0) {
-    //    break;
-    // }
-
-    // But, what is the value of a "not blank" value?
-    // First find the value of a "not blank" value
-      r_sum = r_sum + normalArray[i];
-      g_sum = g_sum + normalArray[i+1];
-			b_sum = b_sum + normalArray[i+2];
+		r_sum = r_sum + normalArray[i];
+		g_sum = g_sum + normalArray[i+1];
+		b_sum = b_sum + normalArray[i+2];
 	}
-  console.log("r_sum: ", r_sum);
-  console.log("g_sum: ", g_sum);
-  console.log("b_sum: ", b_sum);
+	console.log("r_sum: ", r_sum);
+	console.log("g_sum: ", g_sum);
+	console.log("b_sum: ", b_sum);
+	var result0 = (r_sum + g_sum + b_sum) == 0 ? 'blank' : 'filled';
+	console.log("result0: ", result0);
 
-  // Calculate the avg
-  const num_of_points = normalArray.length/color_name.length;
-  const r_avg = r_sum/num_of_points;
-  const g_avg = g_sum/num_of_points;
-  const b_avg = b_sum/num_of_points;
-  console.log("r_avg: ", r_avg);
-  console.log("g_avg: ", g_avg);
-  console.log("b_avg: ", b_avg);
+	// OR
 
-  
+	var result = normalArray.map((val, ind) => {
+		if (val != 0) {
+			return 'filled';
+			break;
+		}
+	}).filter((x) => x.length != 0);
+	console.log("result: ", result);
+
+	// ----------------------
+
+  	return result0;
 }
 
 
 async function resize() {
+	
+	// Check if canvas is filled
+	var result = await check_if_canvas_is_filled();
+	console.log("result: ", result);
 
-  // Check if canvas is filled
-  
+	// If not filled, notation to draw on canvas
+	if (result == "filled") {
 
+		// make the canvas an ASCII_str
+		const [ASCII_str, base64_string] = convert_canvas_to_base64str(ctx, canvasElement)
 
-  // -------------------------
+		// resize the existing canvas
+		canvasElement.width = document.getElementById("width_NEW").value;
+		canvasElement.height = document.getElementById("height_NEW").value;
+		
+		
+		// Put the ASCII_str on a URL
+		await fetch(base64_string)
+			.then(response => response.blob())
+			.then(async function(blob_object) {
 
-  // Use the user's input width_NEW, height_NEW to resize the existing canvas
-  document.getElementById("")
+				
+				document.getElementById("canvasElement_id").src = URL.createObjectURL(blob_object);
+			});
+
+	} else {
+		document.getElementById("notification") = "fill the blank canvas before resizing"
+	}
   
 }
   
 // -------------------------------------------------
-  
+
+async function convert_canvas_to_base64str(ctx, canvasElement) {
+	
+	// -----------------------------
+	
+	// Get canvas image
+	const uint8ClampedArray = await ctx.getImageData(0, 0, canvasElement.width, canvasElement.height); // TypedArray  Uint8ClampedArray
+	// console.log('uint8ClampedArray: ', uint8ClampedArray);
+
+	// Convert TypedArray to normalArray
+	const normalArray = await Array.from(uint8ClampedArray.data);
+	// console.log('normalArray: ', normalArray);
+	
+	// Convert [normalArray of bytes] to text_characters
+	var ASCII_stringArray = normalArray.map((val) => { return String.fromCharCode(val); });
+	// console.log('ASCII_stringArray: ', ASCII_stringArray);
+	
+	// Join all the ASCII characters to form a string
+	var ASCII_str = ASCII_stringArray.join('');
+	// console.log("ASCII_str: ", ASCII_str);
+	
+	// Transform ASCII string into a base64 string
+	var base64_string = btoa(ASCII_str);
+	// console.log("base64_string: ", base64_string);
+
+	// -----------------------------
+
+	return [ASCII_str, base64_string];
+}
+	
+// -------------------------------------------------
+	
 </script>
 </body>
 </html>
