@@ -212,22 +212,64 @@ async function resize() {
 	// If not filled, notation to draw on canvas
 	if (result == "filled") {
 
-		// Way 1
-		// make the canvas an ASCII_str
-		const [ASCII_str, base64_string] = await convert_canvas_to_base64str(ctx, canvasElement)
+		// Way 0: resize the existing canvas and maybe the image will be automatically resized
+		// canvasElement.width = document.getElementById("width_NEW").value;
+		// canvasElement.height = document.getElementById("height_NEW").value;
+		// RESULT: a resized blank canvas is only shown
 
-		// resize the existing canvas
-		canvasElement.width = document.getElementById("width_NEW").value;
-		canvasElement.height = document.getElementById("height_NEW").value;
-		
+		// Way 1: make ImageData like that of FileReader (base64string) - then blob - url
 		// Put the ASCII_str on a URL
-		await fetch(base64_string)
-			.then(response => response.blob())
-			.then(async function(blob_object) {
+		// make the canvas an ASCII_str
+		// const [ASCII_str, base64_string] = await convert_canvas_to_base64str(ctx, canvasElement)
+		// maybe put image string before
+		// await fetch(base64_string)
+		// 	.then(response => response.blob())
+		// 	.then(async function(blob_object) {
+				// resize the existing canvas
+				// canvasElement.width = document.getElementById("width_NEW").value;
+				// canvasElement.height = document.getElementById("height_NEW").value;
 
-				console.log('blob_object: ', blob_object)
-				document.getElementById("canvasElement_id").src = URL.createObjectURL(blob_object);
-			});
+				// console.log('blob_object: ', blob_object)
+				// document.getElementById("canvasElement_id").src = URL.createObjectURL(blob_object);
+			// });
+		// RESULT: a resized blank canvas is only shown
+
+
+		// Get existing canvas image
+		// const uint8ClampedArray = await ctx.getImageData(0, 0, canvasElement.width, canvasElement.height);
+		// console.log('uint8ClampedArray: ', uint8ClampedArray);
+		
+		// Way 2 : keep the same image, draw image on the canvas with a different width and height
+		// Re-define how to draw the image on teh canvas
+		var sx = 0; // for cropping the image: distance from the [original left edge of the image] to the [deisred left edge of image]
+		var sy = 0; // for cropping the image: distance from the [original top edge of the image] to the [deisred top edge of image]
+		var image_width = canvasElement.width; // for cropping the image: desired image width
+		var image_height = canvasElement.height; // for cropping the image: desired image height
+		var dx = 0;  // location to place image on canvas: distance from the [left edge of the canvas] to the [left edge of image]
+		var dy = 0;  // location to place image on canvas: distance from the [top edge of the canvas] to the [top edge of image]
+		var dWidth = document.getElementById("width_NEW").value; // for resizing the image on the canvas: desired image width on canvas
+		var dHeight = document.getElementById("width_NEW").value; // for resizing the image on the canvas: desired image width on canvas
+
+		canvasElement.width = dWidth;
+		canvasElement.height = dHeight;
+		ctx.drawImage(image, sx, sy, image_width, image_height, dx, dy, dWidth, dHeight)
+
+		// OR
+		
+		// ctx.drawImage(image, sx, sy, image_width, image_height, dx, dy, dWidth, dHeight)
+		// canvasElement.width = dWidth;
+		// canvasElement.height = dHeight;
+		
+		// Way 4 : make a new image object with old image from canvasElement
+		// const image = new Image();
+		// image.crossOrigin = "anonymous";
+		//  image.onload = async () => {
+		//         ctx.drawImage(image, sx, sy, image_width, image_height, dx, dy, dWidth, dHeight)
+		// };  // end of image.onload
+		// image.src = document.getElementById("canvasElement_id").src;
+		// canvasElement.width = dWidth;
+		// canvasElement.height = dHeight;
+		
 
 	} else {
 		document.getElementById("notification") = "fill the blank canvas before resizing"
