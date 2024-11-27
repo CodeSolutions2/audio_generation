@@ -21,7 +21,7 @@
 
 <button id="resize_try0" onclick="resize_try0()">resize_try0</button>
 <button id="resize_try1" onclick="resize_try1()">resize_try1</button>
-	
+<button id="resize_try2" onclick="resize_try2()">resize_try2</button>	
 
 
 <div id="data_display" style="display:block; text-align: left; width: 600px;"></div>
@@ -291,9 +291,6 @@ async function resize() {
 
 
 async function resize_try0() {
-	
-	await make_blank_canvas();
-	await color_the_canvas();
 
 	var sx = 0; // for cropping the image: distance from the [original left edge of the image] to the [deisred left edge of image]
 	var sy = 0; // for cropping the image: distance from the [original top edge of the image] to the [deisred top edge of image]
@@ -317,9 +314,6 @@ async function resize_try0() {
 
 
 async function resize_try1() {
-	await make_blank_canvas();
-	await color_the_canvas();
-
 
 	// Way 2: make the canvas a url
 	var url = document.getElementById("canvasElement_id").toDataURL('image/jpeg');
@@ -332,7 +326,30 @@ async function resize_try1() {
 	// Redraw url on resized canvas
 	canvasElement.src = url;
 }
-  
+
+
+async function resize_try2() {
+
+	// Way 2: make the canvas a url
+	var url = document.getElementById("canvasElement_id").toDataURL('image/jpeg');
+	console.log('url: ', url);
+	
+	const width_NEW = document.getElementById("width_NEW").value;
+	const height_NEW = document.getElementById("height_NEW").value;
+	
+	// Resize canvas
+	canvasElement.width = width_NEW;
+	canvasElement.height = height_NEW;
+
+	const image = new Image();
+	image.crossOrigin = "anonymous";
+	image.onload = async () => {
+		ctx.drawImage(image, 0, 0, width_NEW, height_NEW, 0, 0, width_NEW, height_NEW)
+	};
+	image.src = url;
+}
+
+	
 // -------------------------------------------------
 
 async function convert_canvas_to_base64str(ctx, canvasElement) {
