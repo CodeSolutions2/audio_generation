@@ -226,7 +226,7 @@ async function resize() {
 		// RESULT: a resized blank canvas is only shown
 
 		// Way 1: make ImageData like that of FileReader (base64string) - then blob - url
-		// Put the ASCII_str on a URL
+		// Put the ASCII_str on a URL  data:image/jpeg;base64,/
 		// make the canvas an ASCII_str
 		// const [ASCII_str, base64_string] = await convert_canvas_to_base64str(ctx, canvasElement)
 		// maybe put image string before
@@ -252,35 +252,6 @@ async function resize() {
 
 		
 
-		
-		// Way 3 : make a new image object with old image from canvasElement, draw image on the canvas with a different width and height
-		// Re-define how to draw the image on teh canvas
-		var sx = 0; // for cropping the image: distance from the [original left edge of the image] to the [deisred left edge of image]
-		var sy = 0; // for cropping the image: distance from the [original top edge of the image] to the [deisred top edge of image]
-		// var image_width = canvasElement.width; // for cropping the image: desired image width
-		// var image_height = canvasElement.height; // for cropping the image: desired image height
-		var image_width = document.getElementById("width_NEW").value; // for cropping the image: desired image width
-		var image_height = document.getElementById("height_NEW").value; // for cropping the image: desired image height
-		
-		var dx = 0;  // location to place image on canvas: distance from the [left edge of the canvas] to the [left edge of image]
-		var dy = 0;  // location to place image on canvas: distance from the [top edge of the canvas] to the [top edge of image]
-		var dWidth = document.getElementById("width_NEW").value; // for resizing the image on the canvas: desired image width on canvas
-		var dHeight = document.getElementById("height_NEW").value; // for resizing the image on the canvas: desired image width on canvas
-
-		
-		// canvasElement.width = dWidth;
-		// canvasElement.height = dHeight;
-		
-		const image = new Image();
-		image.crossOrigin = "anonymous";
-		image.onload = async () => {
-			ctx.drawImage(image, sx, sy, image_width, image_height, dx, dy, dWidth, dHeight)
-		};
-		image.src = document.getElementById("canvasElement_id").src;
-
-		// Putting this after shows an empty resized canvas
-		// 
-		
 
 	} else {
 		document.getElementById("notification") = "fill the blank canvas before resizing"
@@ -290,64 +261,96 @@ async function resize() {
 
 
 
+
 async function resize_try0() {
 
-	var sx = 0; // for cropping the image: distance from the [original left edge of the image] to the [deisred left edge of image]
-	var sy = 0; // for cropping the image: distance from the [original top edge of the image] to the [deisred top edge of image]
-	// var image_width = canvasElement.width; // for cropping the image: desired image width
-	// var image_height = canvasElement.height; // for cropping the image: desired image height
-	var image_width = document.getElementById("width_NEW").value; // for cropping the image: desired image width
-	var image_height = document.getElementById("height_NEW").value; // for cropping the image: desired image height
+	// Use toDataURL, resize canvas, reset canvas url
 	
-	var dx = 0;  // location to place image on canvas: distance from the [left edge of the canvas] to the [left edge of image]
-	var dy = 0;  // location to place image on canvas: distance from the [top edge of the canvas] to the [top edge of image]
-	var dWidth = document.getElementById("width_NEW").value; // for resizing the image on the canvas: desired image width on canvas
-	var dHeight = document.getElementById("height_NEW").value; // for resizing the image on the canvas: desired image width on canvas
+	// [0] get copy of original canvas image
+	var url = document.getElementById("canvasElement_id").toDataURL('image/jpeg');
+	console.log('url: ', url);
+	
+	// [1] resize canvas
+	const width_NEW = document.getElementById("width_NEW").value;
+	const height_NEW = document.getElementById("height_NEW").value;
+	
+	canvasElement.width = width_NEW;
+	canvasElement.height = height_NEW;
 
-	const image = new Image();
-	image.crossOrigin = "anonymous";
-	image.onload = async () => {
-		ctx.drawImage(image, sx, sy, image_width, image_height, dx, dy, dWidth, dHeight)
-	};
+	// [2] redraw url on resized canvas
+	canvasElement.src = url;
 
+	// RESULT: resizes the canvas, but does not put reduced image on top
 }
+
+
+
 
 
 async function resize_try1() {
 
-	// Way 2: make the canvas a url
-	var url = document.getElementById("canvasElement_id").toDataURL('image/jpeg');
-	
+	// Use toDataURL, resize canvas, make new image
 
-	// Resize canvas
-	canvasElement.width = document.getElementById("width_NEW").value;
-	canvasElement.height = document.getElementById("height_NEW").value;
-
-	// Redraw url on resized canvas
-	canvasElement.src = url;
-}
-
-
-async function resize_try2() {
-
-	// Way 2: make the canvas a url
+	// [0] get copy of original canvas image
 	var url = document.getElementById("canvasElement_id").toDataURL('image/jpeg');
 	console.log('url: ', url);
-	
+
+	// [1] resize canvas
 	const width_NEW = document.getElementById("width_NEW").value;
 	const height_NEW = document.getElementById("height_NEW").value;
 	
-	// Resize canvas
 	canvasElement.width = width_NEW;
 	canvasElement.height = height_NEW;
 
+	// [2] redraw url on resized canvas
 	const image = new Image();
 	image.crossOrigin = "anonymous";
 	image.onload = async () => {
 		ctx.drawImage(image, 0, 0, width_NEW, height_NEW, 0, 0, width_NEW, height_NEW)
 	};
 	image.src = url;
+
+	// RESULT: resizes the canvas, but image is twice as dark
 }
+
+	
+
+async function resize_try1() {
+
+	// Use src, resize canvas, make new image
+
+	// [0] get copy of original canvas image
+	var url = document.getElementById("canvasElement_id").src;
+	console.log('url: ', url);
+
+	// [1] resize canvas
+	const width_NEW = document.getElementById("width_NEW").value;
+	const height_NEW = document.getElementById("height_NEW").value;
+	
+	var sx = 0; // for cropping the image: distance from the [original left edge of the image] to the [deisred left edge of image]
+	var sy = 0; // for cropping the image: distance from the [original top edge of the image] to the [deisred top edge of image]
+	var image_width = width_NEW; // for cropping the image: desired image width
+	var image_height = height_NEW; // for cropping the image: desired image height
+	var dx = 0;  // location to place image on canvas: distance from the [left edge of the canvas] to the [left edge of image]
+	var dy = 0;  // location to place image on canvas: distance from the [top edge of the canvas] to the [top edge of image]
+	var dWidth = width_NEW; // for resizing the image on the canvas: desired image width on canvas
+	var dHeight = height_NEW; // for resizing the image on the canvas: desired image width on canvas
+	
+	canvasElement.width = width_NEW;
+	canvasElement.height = height_NEW;
+
+	// [2] redraw url on resized canvas
+	const image = new Image();
+	image.crossOrigin = "anonymous";
+	image.onload = async () => {
+		ctx.drawImage(image, sx, sy, image_width, image_height, dx, dy, dWidth, dHeight)
+	};
+	image.src = url;
+
+}
+
+
+
 
 	
 // -------------------------------------------------
