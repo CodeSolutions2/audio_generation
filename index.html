@@ -16,6 +16,9 @@
 
 <input type="text" name="width_NEW" id="width_NEW" value="" style="display:none;">
 <input type="text" name="height_NEW" id="height_NEW" value="" style="display:none;">
+
+
+<!-- https://storage.googleapis.com/memetics-motivation/success_512x512_0.png -->	
 <input type="text" name="url" id="url" value="" style="display:none;">
 
 <button id="run_selection" onclick="run_selection()">run_selection</button>
@@ -81,6 +84,7 @@ async function run_selection() {
 		await resize();
 
 	} else if (dropdown_option_type == 'Image_CORS') {
+		await create_dynamic_canvasElement();
 		await Image_CORS();
 		
 	} else {
