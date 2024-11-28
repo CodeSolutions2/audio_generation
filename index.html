@@ -10,7 +10,7 @@
   <option value="make_blank_canvas">make_blank_canvas</option>
   <option value="color_the_canvas">color_the_canvas</option>
   <option value="check_if_canvas_is_filled">check_if_canvas_is_filled</option>
-  <option value="resize">resize</option>
+  <option value="check_if_canvas_is_filled_then_resize">check_if_canvas_is_filled_then_resize</option>
 </select>
 
 
@@ -21,11 +21,7 @@
 
 <button id="run_selection" onclick="run_selection()">run_selection</button>
 
-<button id="resize_try0" onclick="resize_try0()">resize_try0</button>
-<button id="resize_try1" onclick="resize_try1()">resize_try1</button>
-<button id="resize_try2" onclick="resize_try2()">resize_try2</button>	
-<button id="resize_try3" onclick="resize_try3()">resize_try3</button>
-<button id="resize_try4" onclick="resize_try4()">resize_try4</button>	
+<button id="resize" onclick="resize()">resize</button>
 
 <div id="data_display" style="display:block; text-align: left; width: 600px;"></div>
 <br>
@@ -139,7 +135,7 @@ async function make_blank_canvas() {
 
 }
 
-
+// -------------------------------------------------
 	
 async function color_the_canvas() {
   // -------------------------
@@ -163,8 +159,7 @@ async function color_the_canvas() {
 	ctx.fillRect(0, 0, canvasElement.width, canvasElement.height);
 }
 
-
-  
+// -------------------------------------------------
   
 async function check_if_canvas_is_filled() {
 	
@@ -213,6 +208,7 @@ async function check_if_canvas_is_filled() {
   	return result0;
 }
 
+// -------------------------------------------------
 
 async function check_if_canvas_is_filled_then_resize() {
 	
@@ -229,11 +225,16 @@ async function check_if_canvas_is_filled_then_resize() {
   
 }
 
+// -------------------------------------------------
+
+
 
 
 
 	
-
+// -------------------------------------------------
+// IMAGE SUBFUNCTIONS
+// -------------------------------------------------
 async function resize() {
 
 	// Use src, resize canvas, make new image
@@ -345,10 +346,6 @@ async function resize() {
 	}
 
 }
-
-
-
-
 	
 // -------------------------------------------------
 
