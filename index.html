@@ -17,6 +17,8 @@
 <input type="text" name="width_NEW" id="width_NEW" value="" style="display:none;">
 <input type="text" name="height_NEW" id="height_NEW" value="" style="display:none;">
 
+<input type="text" name="method" id="method" placeholder="method" value="" style="display:block;">
+
 <button id="run_selection" onclick="run_selection()">run_selection</button>
 
 <button id="resize_try0" onclick="resize_try0()">resize_try0</button>
@@ -212,7 +214,7 @@ async function check_if_canvas_is_filled() {
 }
 
 
-async function resize() {
+async function check_if_canvas_is_filled_then_resize() {
 	
 	// Check if canvas is filled
 	var result = await check_if_canvas_is_filled();
@@ -220,10 +222,7 @@ async function resize() {
 
 	// If not filled, notation to draw on canvas
 	if (result == "filled") {
-
-		
-
-
+		await resize();
 	} else {
 		document.getElementById("notification") = "fill the blank canvas before resizing"
 	}
@@ -233,172 +232,120 @@ async function resize() {
 
 
 
-async function resize_try0() {
-
-	// Use toDataURL, resize canvas, reset canvas url
-	
-	// [0] get copy of original canvas image
-	var url = document.getElementById("canvasElement_id").toDataURL('image/jpeg');
-	console.log('url: ', url);
-	
-	// [1] resize canvas
-	const width_NEW = document.getElementById("width_NEW").value;
-	const height_NEW = document.getElementById("height_NEW").value;
-	
-	canvasElement.width = width_NEW;
-	canvasElement.height = height_NEW;
-
-	// [2] redraw url on resized canvas
-	canvasElement.src = url;
-
-	// RESULT: resizes the canvas, but blank image
-}
-
-
-
-
-
-async function resize_try1() {
-
-	// Use toDataURL, resize canvas, make new image
-
-	// [0] get copy of original canvas image
-	var url = document.getElementById("canvasElement_id").toDataURL('image/jpeg');
-	console.log('url: ', url);
-
-	// [1] resize canvas
-	const width_NEW = document.getElementById("width_NEW").value;
-	const height_NEW = document.getElementById("height_NEW").value;
-	
-	canvasElement.width = width_NEW;
-	canvasElement.height = height_NEW;
-
-	// [2] redraw url on resized canvas
-	const image = new Image();
-	image.crossOrigin = "anonymous";
-	image.onload = async () => {
-		ctx.drawImage(image, 0, 0, width_NEW, height_NEW, 0, 0, width_NEW, height_NEW)
-	};
-	image.src = url;
-
-	// RESULT: resizes the canvas, but image is twice as dark
-}
-
 	
 
-async function resize_try2() {
+async function resize() {
 
 	// Use src, resize canvas, make new image
 
 	// [0] get copy of original canvas image
-	// var url = document.getElementById("canvasElement_id").src; // RESULT: resizes the canvas, but url undefined
-  var url = document.getElementById("canvasElement_id").toDataURL('image/png');
-	console.log('url: ', url);
+	const method = document.getElementById("method").value;
+	if (method == 0) {
+		var url = document.getElementById("canvasElement_id").toDataURL('image/png');  // WORKS
+		console.log('url: ', url);
+		
+	} else if (method == 1) {
+		var url = document.getElementById("canvasElement_id").toDataURL('image/jpeg');  // Image was darker
+		console.log('url: ', url);
+		
+	} else if (method == 2) {
+		var [ASCII_str, base64_string] = await convert_canvas_to_base64str(ctx, canvasElement) 
+		const base64_string_w_header = 'data:image/jpeg;base64,' + base64_string;
+		console.log('base64_string_w_header: ', base64_string_w_header);
+		
+		var url = await fetch(base64_string_w_header)
+			.then(response => response.blob())
+			.then(async function(blob_object) {
+				console.log('blob_object: ', blob_object)
+				return URL.createObjectURL(blob_object);
+			});
+		console.log('url: ', url);
+		
+	} else if (method == 3) {
+		var [ASCII_str, base64_string] = await convert_canvas_to_base64str(ctx, canvasElement)
+		console.log('base64_string: ', base64_string);
+		var url = await fetch(base64_string)
+			.then(response => response.blob())
+			.then(async function(blob_object) {
+				console.log('blob_object: ', blob_object)
+				return URL.createObjectURL(blob_object);
+			});
+		console.log('url: ', url);
+		
+	} else if (method == 4) {
 
-	// [1] resize canvas
+		// Select the input element where the user selects the image file
+		document.getElementById("canvasElement_id").addEventListener('change', (event) => {
+		  const file = event.target.files[0];
+		  
+		  // Read the file as a Blob object
+		  const reader = new FileReader();
+		
+		  reader.onload = function(e) {
+		    const blob = new Blob([e.target.result], { type: file.type });
+		    // Create a Blob URL
+		    const blobUrl = URL.createObjectURL(blob);
+		    
+		    // Get the canvas element
+		    // const canvas = document.getElementById('imageCanvas');
+		    // const ctx = canvas.getContext('2d');
+
+		    // [1] define resizing parameters
 	const width_NEW = document.getElementById("width_NEW").value;
 	const height_NEW = document.getElementById("height_NEW").value;
-	
-	var sx = 0; // for cropping the image: distance from the [original left edge of the image] to the [deisred left edge of image]
-	var sy = 0; // for cropping the image: distance from the [original top edge of the image] to the [deisred top edge of image]
-	var image_width = width_NEW; // for cropping the image: desired image width
-	var image_height = height_NEW; // for cropping the image: desired image height
-	var dx = 0;  // location to place image on canvas: distance from the [left edge of the canvas] to the [left edge of image]
-	var dy = 0;  // location to place image on canvas: distance from the [top edge of the canvas] to the [top edge of image]
-	var dWidth = width_NEW; // for resizing the image on the canvas: desired image width on canvas
-	var dHeight = height_NEW; // for resizing the image on the canvas: desired image width on canvas
-	
-	
+			  
+		    // Create an image element and set its source to the Blob URL
+		    const image = new Image();
+			image.crossOrigin = "anonymous";
+		    image.onload = function() {
 
-	// [2] redraw url on resized canvas
-	const image = new Image();
-	image.crossOrigin = "anonymous";
-	image.onload = async () => {
-
-    canvasElement.width = width_NEW;
-	  canvasElement.height = height_NEW;
-    
-		ctx.drawImage(image, sx, sy, image_width, image_height, dx, dy, dWidth, dHeight)
-	};
-	image.src = url;
-
-	
-
-}
-
-
-
-async function resize_try3() {
-
-	// Use toDataURL, resize canvas, make new image
-
-	// [0] get copy of original canvas image
-	var [ASCII_str, base64_string] = await convert_canvas_to_base64str(ctx, canvasElement)
-	const base64_string_w_header = 'data:image/jpeg;base64,' + base64_string;
-	console.log('base64_string_w_header: ', base64_string_w_header);
-	
-	var url = await fetch(base64_string_w_header)
-		.then(response => response.blob())
-		.then(async function(blob_object) {
-			console.log('blob_object: ', blob_object)
-			return URL.createObjectURL(blob_object);
+			    // [2] resize canvas
+		canvasElement.width = width_NEW;
+		canvasElement.height = height_NEW;
+			    
+		      ctx.drawImage(img, 0, 0, width_NEW, height_NEW);
+		    };
+		    image.src = blobUrl;   // OR e.target.result
+		  };
+		  
+		  reader.readAsArrayBuffer(file);
 		});
-	console.log('url: ', url);
+	}
 
-	// [1] resize canvas
-	const width_NEW = document.getElementById("width_NEW").value;
-	const height_NEW = document.getElementById("height_NEW").value;
+
+
 	
-	canvasElement.width = width_NEW;
-	canvasElement.height = height_NEW;
+	if (method < 4) {
 
-	// [2] redraw url on resized canvas
-	const image = new Image();
-	image.crossOrigin = "anonymous";
-	image.onload = async () => {
-		ctx.drawImage(image, 0, 0, width_NEW, height_NEW, 0, 0, width_NEW, height_NEW)
-	};
-	image.src = url;
+		// [1] define resizing parameters
+		const width_NEW = document.getElementById("width_NEW").value;
+		const height_NEW = document.getElementById("height_NEW").value;
+		
+		var sx = 0; // for cropping the image: distance from the [original left edge of the image] to the [deisred left edge of image]
+		var sy = 0; // for cropping the image: distance from the [original top edge of the image] to the [deisred top edge of image]
+		var image_width = width_NEW; // for cropping the image: desired image width
+		var image_height = height_NEW; // for cropping the image: desired image height
+		var dx = 0;  // location to place image on canvas: distance from the [left edge of the canvas] to the [left edge of image]
+		var dy = 0;  // location to place image on canvas: distance from the [top edge of the canvas] to the [top edge of image]
+		var dWidth = width_NEW; // for resizing the image on the canvas: desired image width on canvas
+		var dHeight = height_NEW; // for resizing the image on the canvas: desired image width on canvas
+	
+		const image = new Image();
+		image.crossOrigin = "anonymous";
+		image.onload = async () => {
+	
+			// [2] resize canvas
+			canvasElement.width = width_NEW;
+			canvasElement.height = height_NEW;
+	
+			// [3] put the image back onto the canvas at the new size using image.src and defining the new size
+			ctx.drawImage(image, sx, sy, image_width, image_height, dx, dy, dWidth, dHeight); // only image, sx, sy, image_width, image_height need to be set
+		};
+		image.src = url;
+	}
 
-	// RESULT: resizes the canvas, but blank image
 }
 
-
-
-
-async function resize_try4() {
-
-	// Use toDataURL, resize canvas, make new image
-
-	// [0] get copy of original canvas image
-	var [ASCII_str, base64_string] = await convert_canvas_to_base64str(ctx, canvasElement)
-	console.log('base64_string: ', base64_string);
-	
-	var url = await fetch(base64_string)
-		.then(response => response.blob())
-		.then(async function(blob_object) {
-			console.log('blob_object: ', blob_object)
-			return URL.createObjectURL(blob_object);
-		});
-	console.log('url: ', url);
-
-	// [1] resize canvas
-	const width_NEW = document.getElementById("width_NEW").value;
-	const height_NEW = document.getElementById("height_NEW").value;
-	
-	canvasElement.width = width_NEW;
-	canvasElement.height = height_NEW;
-
-	// [2] redraw url on resized canvas
-	const image = new Image();
-	image.crossOrigin = "anonymous";
-	image.onload = async () => {
-		ctx.drawImage(image, 0, 0, width_NEW, height_NEW, 0, 0, width_NEW, height_NEW)
-	};
-	image.src = url;
-
-	// RESULT: resizes the canvas, but image is twice as dark
-}
 
 
 
