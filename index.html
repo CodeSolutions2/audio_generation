@@ -7,21 +7,19 @@
 <label for="select_dropdown_option_label">Select a choice:</label>
 <select name="dropdown_options" id="dropdown_options" style="display:block">
   <option value="---">Select an option</option>
-  <option value="make_blank_canvas">make_blank_canvas</option>
-  <option value="color_the_canvas">color_the_canvas</option>
-  <option value="check_if_canvas_is_filled">check_if_canvas_is_filled</option>
-  <option value="check_if_canvas_is_filled_then_resize">check_if_canvas_is_filled_then_resize</option>
+  <option value="create_dynamic_canvasElement">create_dynamic_canvasElement</option>
+  <option value="create_a_solid_image">create_a_solid_image</option>
+  <option value="resize">resize</option>
+  <option value="filter_image0">filter_image0</option>
 </select>
 
 
 <input type="text" name="width_NEW" id="width_NEW" value="" style="display:none;">
 <input type="text" name="height_NEW" id="height_NEW" value="" style="display:none;">
 
-<input type="text" name="method" id="method" placeholder="method" value="" style="display:block;">
 
 <button id="run_selection" onclick="run_selection()">run_selection</button>
 
-<button id="resize" onclick="resize()">resize</button>
 
 <div id="data_display" style="display:block; text-align: left; width: 600px;"></div>
 <br>
@@ -50,7 +48,7 @@ window.addEventListener('beforeunload', function() {
 	
 async function processEvent_dropdown_options(event) {
 	
-	if (document.getElementById("dropdown_options").selectedIndex == 4) {
+	if (document.getElementById("dropdown_options").selectedIndex == 3) {
 		document.getElementById("width_NEW").style.display = 'block';
 		document.getElementById("height_NEW").style.display = 'block';
 		
@@ -70,17 +68,17 @@ async function run_selection() {
 	// Put in a function in <script>
 	var dropdown_option_type = document.getElementById("dropdown_options").value;
 
-	if (dropdown_option_type == 'make_blank_canvas') {
-		await make_blank_canvas();
+	if (dropdown_option_type == 'create_dynamic_canvasElement') {
+		await create_dynamic_canvasElement();
 		
-	} else if (dropdown_option_type == 'color_the_canvas') {
-		await color_the_canvas();
-
-	} else if (dropdown_option_type == 'check_if_canvas_is_filled') {
-		await check_if_canvas_is_filled();
+	} else if (dropdown_option_type == 'create_a_solid_image') {
+		await create_a_solid_image();
 
 	} else if (dropdown_option_type == 'resize') {
 		await resize();
+
+	} else if (dropdown_option_type == 'filter_image0') {
+		await filter_image0();
 		
 	} else {
 		document.getElementById("notification") = "No dropdown type selected";
@@ -91,15 +89,26 @@ async function run_selection() {
 
 // -------------------------------------------------
 
-  var canvasElement;
-  var ctx;
+var canvasElement;
+var ctx;
 
-   var width_ORG = 256;
-  var height_ORG = 256;
+var width_ORG = 256;
+var height_ORG = 256;
 
 // -------------------------------------------------
 
-async function make_blank_canvas() {
+
+
+async function filter_image0() {
+
+
+}
+
+	
+// -------------------------------------------------
+// IMAGE SUBFUNCTIONS
+// -------------------------------------------------
+async function create_dynamic_canvasElement() {
 
 // -------------------------
   // Create a canvas element
@@ -120,24 +129,13 @@ async function make_blank_canvas() {
   // -------------------------
   
   // Make a canvas border
-	document.getElementById('canvasElement_id').style.border = '1px solid black';
-
-  // -------------------------
-  
-  // Color the canvas
-  // await color_the_canvas();
-  
-  // OR
-
-  // Leave the canvas blank
-
-  // -------------------------
+	canvasElement.style.border = '1px solid black';
 
 }
 
 // -------------------------------------------------
 	
-async function color_the_canvas() {
+async function create_a_solid_image() {
   // -------------------------
   // Color the canvas
   var r = Math.floor(Math.random()*255);
@@ -160,224 +158,44 @@ async function color_the_canvas() {
 }
 
 // -------------------------------------------------
-  
-async function check_if_canvas_is_filled() {
 	
-	// Get canvas image
-	const uint8ClampedArray = await ctx.getImageData(0, 0, canvasElement.width, canvasElement.height); // TypedArray  Uint8ClampedArray
-	// console.log('uint8ClampedArray: ', uint8ClampedArray);
-  
-	// Convert TypedArray to normalArray
-	var normalArray = await Array.from(uint8ClampedArray.data);
-
-	// ----------------------
-	
-	// A blank canvas has rgb values that are zero.
-	// Modify some of the pixels, to determine if there is a change
-	const color_name = ['r', 'g', 'b', 'alpha'];
-	var r_sum = 0;
-	var g_sum = 0;
-	var b_sum = 0;
-	for ( let i=0; i<normalArray.length; i+=color_name.length ) {
-		r_sum = r_sum + normalArray[i];
-		g_sum = g_sum + normalArray[i+1];
-		b_sum = b_sum + normalArray[i+2];
-	}
-	console.log("r_sum: ", r_sum);
-	console.log("g_sum: ", g_sum);
-	console.log("b_sum: ", b_sum);
-	var result0 = (r_sum + g_sum + b_sum) == 0 ? 'blank' : 'filled';
-	console.log("result0: ", result0);
-
-	// OR
-
-	var result_arr = normalArray.map((val, ind) => {
-		if (val != 0) {
-			return 'filled';
-		} else {
-			return '';
-		}
-	}).filter((x) => x.length != 0);
-	console.log("result_arr: ", result_arr);
-
-	var result1 = result_arr.length == 0 ? 'blank' : 'filled';
-	console.log("result1: ", result1);
-
-	// ----------------------
-
-  	return result0;
-}
-
-// -------------------------------------------------
-
-async function check_if_canvas_is_filled_then_resize() {
-	
-	// Check if canvas is filled
-	var result = await check_if_canvas_is_filled();
-	console.log("result: ", result);
-
-	// If not filled, notation to draw on canvas
-	if (result == "filled") {
-		await resize();
-	} else {
-		document.getElementById("notification") = "fill the blank canvas before resizing"
-	}
-  
-}
-
-// -------------------------------------------------
-
-
-
-
-
-	
-// -------------------------------------------------
-// IMAGE SUBFUNCTIONS
-// -------------------------------------------------
 async function resize() {
 
 	// Use src, resize canvas, make new image
 
 	// [0] get copy of original canvas image
-	const method = document.getElementById("method").value;
-	if (method == 0) {
-		var url = document.getElementById("canvasElement_id").toDataURL('image/png');  // WORKS
-		console.log('url: ', url);
+	var url = document.getElementById("canvasElement_id").toDataURL('image/png');  // WORKS
+	console.log('url: ', url);
 		
-	} else if (method == 1) {
-		var url = document.getElementById("canvasElement_id").toDataURL('image/jpeg');  // Image was darker
-		console.log('url: ', url);
-		
-	} else if (method == 2) {
-		var [ASCII_str, base64_string] = await convert_canvas_to_base64str(ctx, canvasElement) 
-		const base64_string_w_header = 'data:image/jpeg;base64,' + base64_string;
-		console.log('base64_string_w_header: ', base64_string_w_header);
-		
-		var url = await fetch(base64_string_w_header)
-			.then(response => response.blob())
-			.then(async function(blob_object) {
-				console.log('blob_object: ', blob_object)
-				return URL.createObjectURL(blob_object);
-			});
-		console.log('url: ', url);
-		
-	} else if (method == 3) {
-		var [ASCII_str, base64_string] = await convert_canvas_to_base64str(ctx, canvasElement)
-		console.log('base64_string: ', base64_string);
-		var url = await fetch(base64_string)
-			.then(response => response.blob())
-			.then(async function(blob_object) {
-				console.log('blob_object: ', blob_object)
-				return URL.createObjectURL(blob_object);
-			});
-		console.log('url: ', url);
-		
-	} else if (method == 4) {
-
-		// Select the input element where the user selects the image file
-		document.getElementById("canvasElement_id").addEventListener('change', (event) => {
-		  const file = event.target.files[0];
-		  
-		  // Read the file as a Blob object
-		  const reader = new FileReader();
-		
-		  reader.onload = function(e) {
-		    const blob = new Blob([e.target.result], { type: file.type });
-		    // Create a Blob URL
-		    const blobUrl = URL.createObjectURL(blob);
-		    
-		    // Get the canvas element
-		    // const canvas = document.getElementById('imageCanvas');
-		    // const ctx = canvas.getContext('2d');
-
-		    // [1] define resizing parameters
+	// [1] define resizing parameters
 	const width_NEW = document.getElementById("width_NEW").value;
 	const height_NEW = document.getElementById("height_NEW").value;
-			  
-		    // Create an image element and set its source to the Blob URL
-		    const image = new Image();
-			image.crossOrigin = "anonymous";
-		    image.onload = function() {
+	
+	var sx = 0; // for cropping the image: distance from the [original left edge of the image] to the [deisred left edge of image]
+	var sy = 0; // for cropping the image: distance from the [original top edge of the image] to the [deisred top edge of image]
+	var image_width = width_NEW; // for cropping the image: desired image width
+	var image_height = height_NEW; // for cropping the image: desired image height
+	var dx = 0;  // location to place image on canvas: distance from the [left edge of the canvas] to the [left edge of image]
+	var dy = 0;  // location to place image on canvas: distance from the [top edge of the canvas] to the [top edge of image]
+	var dWidth = width_NEW; // for resizing the image on the canvas: desired image width on canvas
+	var dHeight = height_NEW; // for resizing the image on the canvas: desired image width on canvas
 
-			    // [2] resize canvas
+	const image = new Image();
+	image.crossOrigin = "anonymous";
+	image.onload = async () => {
+
+		// [2] resize canvas
 		canvasElement.width = width_NEW;
 		canvasElement.height = height_NEW;
-			    
-		      ctx.drawImage(img, 0, 0, width_NEW, height_NEW);
-		    };
-		    image.src = blobUrl;   // OR e.target.result
-		  };
-		  
-		  reader.readAsArrayBuffer(file);
-		});
-	}
 
-
-
+		// [3] put the image back onto the canvas at the new size using image.src and defining the new size
+		ctx.drawImage(image, sx, sy, image_width, image_height, dx, dy, dWidth, dHeight); // only image, sx, sy, image_width, image_height need to be set
+	};
+	image.src = url;
 	
-	if (method < 4) {
-
-		// [1] define resizing parameters
-		const width_NEW = document.getElementById("width_NEW").value;
-		const height_NEW = document.getElementById("height_NEW").value;
-		
-		var sx = 0; // for cropping the image: distance from the [original left edge of the image] to the [deisred left edge of image]
-		var sy = 0; // for cropping the image: distance from the [original top edge of the image] to the [deisred top edge of image]
-		var image_width = width_NEW; // for cropping the image: desired image width
-		var image_height = height_NEW; // for cropping the image: desired image height
-		var dx = 0;  // location to place image on canvas: distance from the [left edge of the canvas] to the [left edge of image]
-		var dy = 0;  // location to place image on canvas: distance from the [top edge of the canvas] to the [top edge of image]
-		var dWidth = width_NEW; // for resizing the image on the canvas: desired image width on canvas
-		var dHeight = height_NEW; // for resizing the image on the canvas: desired image width on canvas
-	
-		const image = new Image();
-		image.crossOrigin = "anonymous";
-		image.onload = async () => {
-	
-			// [2] resize canvas
-			canvasElement.width = width_NEW;
-			canvasElement.height = height_NEW;
-	
-			// [3] put the image back onto the canvas at the new size using image.src and defining the new size
-			ctx.drawImage(image, sx, sy, image_width, image_height, dx, dy, dWidth, dHeight); // only image, sx, sy, image_width, image_height need to be set
-		};
-		image.src = url;
-	}
-
 }
 	
-// -------------------------------------------------
 
-async function convert_canvas_to_base64str(ctx, canvasElement) {
-	
-	// -----------------------------
-	
-	// Get canvas image
-	const uint8ClampedArray = await ctx.getImageData(0, 0, canvasElement.width, canvasElement.height); // TypedArray  Uint8ClampedArray
-	// console.log('uint8ClampedArray: ', uint8ClampedArray);
-
-	// Convert TypedArray to normalArray
-	const normalArray = await Array.from(uint8ClampedArray.data);
-	// console.log('normalArray: ', normalArray);
-	
-	// Convert [normalArray of bytes] to text_characters
-	var ASCII_stringArray = normalArray.map((val) => { return String.fromCharCode(val); });
-	// console.log('ASCII_stringArray: ', ASCII_stringArray);
-	
-	// Join all the ASCII characters to form a string
-	var ASCII_str = ASCII_stringArray.join('');
-	// console.log("ASCII_str: ", ASCII_str);
-	
-	// Transform ASCII string into a base64 string
-	var base64_string = btoa(ASCII_str);
-	// console.log("base64_string: ", base64_string);
-
-	// -----------------------------
-
-	return [ASCII_str, base64_string];
-}
-	
 // -------------------------------------------------
 	
 </script>
