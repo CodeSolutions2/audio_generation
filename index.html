@@ -10,13 +10,13 @@
   <option value="create_dynamic_canvasElement">create_dynamic_canvasElement</option>
   <option value="create_a_solid_image">create_a_solid_image</option>
   <option value="resize">resize</option>
-  <option value="filter_image0">filter_image0</option>
+  <option value="Image_CORS">Image_CORS</option>
 </select>
 
 
 <input type="text" name="width_NEW" id="width_NEW" value="" style="display:none;">
 <input type="text" name="height_NEW" id="height_NEW" value="" style="display:none;">
-
+<input type="text" name="url" id="url" value="" style="display:none;">
 
 <button id="run_selection" onclick="run_selection()">run_selection</button>
 
@@ -52,9 +52,12 @@ async function processEvent_dropdown_options(event) {
 		document.getElementById("width_NEW").style.display = 'block';
 		document.getElementById("height_NEW").style.display = 'block';
 		
+	} else if (document.getElementById("dropdown_options").selectedIndex == 4) {
+		document.getElementById("url").style.display = 'block';
 	} else {
 		document.getElementById("width_NEW").style.display = 'none';
 		document.getElementById("height_NEW").style.display = 'none';
+		document.getElementById("url").style.display = 'none';
 	}
 	
 }
@@ -77,8 +80,8 @@ async function run_selection() {
 	} else if (dropdown_option_type == 'resize') {
 		await resize();
 
-	} else if (dropdown_option_type == 'filter_image0') {
-		await filter_image0();
+	} else if (dropdown_option_type == 'Image_CORS') {
+		await Image_CORS();
 		
 	} else {
 		document.getElementById("notification") = "No dropdown type selected";
@@ -97,12 +100,6 @@ var height_ORG = 256;
 
 // -------------------------------------------------
 
-
-
-async function filter_image0() {
-
-
-}
 
 	
 // -------------------------------------------------
@@ -180,21 +177,35 @@ async function resize() {
 	var dWidth = width_NEW; // for resizing the image on the canvas: desired image width on canvas
 	var dHeight = height_NEW; // for resizing the image on the canvas: desired image width on canvas
 
-	const image = new Image();
-	image.crossOrigin = "anonymous";
-	image.onload = async () => {
+	const imageElement = new Image();
+	imageElement.crossOrigin = "anonymous";
+	imageElement.onload = async () => {
 
 		// [2] resize canvas
 		canvasElement.width = width_NEW;
 		canvasElement.height = height_NEW;
 
 		// [3] put the image back onto the canvas at the new size using image.src and defining the new size
-		ctx.drawImage(image, sx, sy, image_width, image_height, dx, dy, dWidth, dHeight); // only image, sx, sy, image_width, image_height need to be set
+		ctx.drawImage(imageElement, sx, sy, image_width, image_height, dx, dy, dWidth, dHeight); // only imageElement, sx, sy, image_width, image_height need to be set
 	};
-	image.src = url;
+	imageElement.src = url;
 	
 }
 	
+
+// -------------------------------------------------
+
+  
+async function Image_CORS() {
+  
+	const imageElement = new Image();  // image is 'HTMLImageElement'
+	imageElement.setAttribute('crossOrigin', "anonymous");
+	imageElement.setAttribute('headers', {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"});
+	imageElement.onload = async () => { 
+    ctx.drawImage(imageElement, 0, 0, width_ORG, height_ORG); 
+  };
+	imageElement.src = document.getElementById("url").value;
+}
 
 // -------------------------------------------------
 	
