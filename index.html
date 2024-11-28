@@ -174,8 +174,8 @@ async function resize() {
 	
 	var sx = 0; // for cropping the image: distance from the [original left edge of the image] to the [deisred left edge of image]
 	var sy = 0; // for cropping the image: distance from the [original top edge of the image] to the [deisred top edge of image]
-	var image_width = width_NEW; // for cropping the image: desired image width
-	var image_height = height_NEW; // for cropping the image: desired image height
+	var image_width = width_ORG; // width_NEW; // for cropping the image: desired image width
+	var image_height = height_ORG; // height_NEW; // for cropping the image: desired image height
 	var dx = 0;  // location to place image on canvas: distance from the [left edge of the canvas] to the [left edge of image]
 	var dy = 0;  // location to place image on canvas: distance from the [top edge of the canvas] to the [top edge of image]
 	var dWidth = width_NEW; // for resizing the image on the canvas: desired image width on canvas
