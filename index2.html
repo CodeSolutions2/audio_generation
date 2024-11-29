@@ -254,6 +254,7 @@ async function filter_image() {
 
 	// Check if the canvas is filled
 	const result1 = await check_if_canvas_is_filled(ctx1, canvasElement1);
+	console.log('result1: ', result1);
 	
 	// ----------------------
 	
@@ -315,7 +316,7 @@ async function convert_canvas_into_ImageData(ctx, canvasElement) {
 	// console.log('uint8ClampedArray: ', uint8ClampedArray);
   
 	// Convert TypedArray to normalArray
-	return normalArray = await Array.from(uint8ClampedArray.data);
+	return await Array.from(uint8ClampedArray.data);
 }
 
 // -------------------------------------------------
