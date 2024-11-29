@@ -291,7 +291,7 @@ async function filter_image() {
 async function convert_canvas_into_ImageData(ctx) {
 	
 	// Get canvas image
-	const uint8ClampedArray = await ctx.getImageData(0, 0, width, height); // TypedArray  Uint8ClampedArray
+	const uint8ClampedArray = await ctx.getImageData(0, 0, width_ORG, height_ORG); // TypedArray  Uint8ClampedArray
 	// console.log('uint8ClampedArray: ', uint8ClampedArray);
   
 	// Convert TypedArray to normalArray
