@@ -18,8 +18,6 @@
 <input type="text" name="width_NEW" id="width_NEW" value="" style="display:none;">
 <input type="text" name="height_NEW" id="height_NEW" value="" style="display:none;">
 
-
-<!-- https://storage.googleapis.com/memetics-motivation/success_512x512_0.png -->	
 <input type="text" name="url" id="url" value="" style="display:none;">
 
 <button id="run_selection" onclick="run_selection()">run_selection</button>
@@ -132,8 +130,8 @@ async function create_dynamic_canvasElement(canvasElement_id, canvasElement_clas
 	var canvasElement = document.createElement('canvas');
 
 	// Set attributes of the canvas
-	canvasElement.width = width;
-	canvasElement.height = height;
+	canvasElement.width = width_ORG;
+	canvasElement.height = height_ORG;
   	canvasElement.id = canvasElement_id;
 	canvasElement.class = canvasElement_className;
 	
