@@ -188,7 +188,7 @@ async function resize() {
 	// Use src, resize canvas, make new image
 
 	// [0] get copy of original canvas image
-	var url = document.getElementById("canvasElement_id").toDataURL('image/png');  // WORKS
+	var url = canvasElement.toDataURL('image/png');  // WORKS
 	console.log('url: ', url);
 		
 	// [1] define resizing parameters
@@ -218,7 +218,6 @@ async function resize() {
 	imageElement.src = url;
 	
 }
-	
 
 // -------------------------------------------------
 
@@ -228,7 +227,7 @@ async function Image_CORS(url) {
 	imageElement.setAttribute('crossOrigin', "anonymous");
 	imageElement.setAttribute('headers', {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"});
 	imageElement.onload = async () => { 
-		ctx.drawImage(imageElement, 0, 0, width_ORG, height_ORG); 
+		ctx.drawImage(imageElement, 0, 0, canvasElement.width, canvasElement.height); 
 	};
 	imageElement.src = url;
 }
@@ -238,7 +237,7 @@ async function Image_CORS(url) {
 async function filter_image() {
 
 	// Obtain image from canvas
-	const normalArray = await convert_canvas_into_ImageData(ctx);
+	const normalArray = await convert_canvas_into_ImageData(ctx, canvasElement);
 
 	// ----------------------
 	
@@ -252,6 +251,9 @@ async function filter_image() {
 	const grayscale_typedarray = await new Uint8ClampedArray(grayscale_normalArray);
 	var grayscale_imageData = await new ImageData(grayscale_typedarray, canvasElement1.width, canvasElement1.height);
 	ctx1.putImageData(grayscale_imageData, 0, 0);
+
+	// Check if the canvas is filled
+	const result1 = await check_if_canvas_is_filled(ctx1, canvasElement1);
 	
 	// ----------------------
 	
@@ -266,6 +268,9 @@ async function filter_image() {
 	var inverted_imageData = await new ImageData(inverted_typedarray, canvasElement2.width, canvasElement2.height);
 	ctx2.putImageData(inverted_imageData, 0, 0);
 
+	// Check if the canvas is filled
+	const result2 = await check_if_canvas_is_filled(ctx2, canvasElement2);
+
 	// ----------------------
 	
 	// Blur the inverted image (GaussianBlur)
@@ -275,7 +280,10 @@ async function filter_image() {
 	ctx3.putImageData(inverted_imageData, 0, 0);
 	
 	canvasElement3.style.filter = 'blur(4px)';
-	const blurred_normalArray = await convert_canvas_into_ImageData(ctx3);
+	const blurred_normalArray = await convert_canvas_into_ImageData(ctx3, canvasElement3);
+
+	// Check if the canvas is filled
+	const result3 = await check_if_canvas_is_filled(ctx3, canvasElement3);
 
 	// ----------------------
   
@@ -290,6 +298,9 @@ async function filter_image() {
 	const [ctx4, canvasElement4] = await create_dynamic_canvasElement("canvasElement4_id", "canvasElement4_className", 4);
 	document.getElementById('data_display').appendChild(canvasElement4);
 	ctx4.putImageData(imageData_blend, 0, 0);
+
+	// Check if the canvas is filled
+	const result4 = await check_if_canvas_is_filled(ctx4, canvasElement4);
 	
 	// ----------------------
   
@@ -297,10 +308,10 @@ async function filter_image() {
 
 // -------------------------------------------------
 
-async function convert_canvas_into_ImageData(ctx) {
+async function convert_canvas_into_ImageData(ctx, canvasElement) {
 	
 	// Get canvas image
-	const uint8ClampedArray = await ctx.getImageData(0, 0, width_ORG, height_ORG); // TypedArray  Uint8ClampedArray
+	const uint8ClampedArray = await ctx.getImageData(0, 0, canvasElement.width, canvasElement.height); // TypedArray  Uint8ClampedArray
 	// console.log('uint8ClampedArray: ', uint8ClampedArray);
   
 	// Convert TypedArray to normalArray
@@ -338,7 +349,6 @@ async function bitwise_not(normalArray) {
 	return normalArray;
 }
 
-
 // -------------------------------------------------
 
 async function blend_ratio_of_pixels(grayscale, blurred) {
@@ -355,7 +365,41 @@ async function blend_ratio_of_pixels(grayscale, blurred) {
 	return output;
 }
   
+// -------------------------------------------------
   
+async function check_if_canvas_is_filled(ctx, canvasElement) {
+	
+	// Get canvas image
+	const normalArray = await convert_canvas_into_ImageData(ctx, canvasElement);
+
+	// ----------------------
+	
+	// A blank canvas has rgb values that are zero.
+	// Modify some of the pixels, to determine if there is a change
+	const color_name = ['r', 'g', 'b', 'alpha'];
+	var r_sum = 0;
+	var g_sum = 0;
+	var b_sum = 0;
+	for ( let i=0; i<normalArray.length; i+=color_name.length ) {
+		r_sum = r_sum + normalArray[i];
+		g_sum = g_sum + normalArray[i+1];
+		b_sum = b_sum + normalArray[i+2];
+	}
+	console.log("r_sum: ", r_sum);
+	console.log("g_sum: ", g_sum);
+	console.log("b_sum: ", b_sum);
+	var result0 = (r_sum + g_sum + b_sum) == 0 ? 'blank' : 'filled';
+	console.log("result0: ", result0);
+
+	// ----------------------
+
+	// Outputs "filled" if there is an image on the canvas, outputs "blank" if the canvas is empty.
+  	return result0;
+}
+
+// -------------------------------------------------
+	
+	
 </script>
 </body>
 </html>
