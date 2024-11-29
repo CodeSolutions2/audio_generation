@@ -243,44 +243,53 @@ async function filter_image() {
 	// ----------------------
 	
 	// Convert the image to grayscale
-	const grayscale = await convert_to_grayscale(normalArray);
+	const grayscale_normalArray = await convert_to_grayscale(normalArray);
+	console.log('grayscale_normalArray: ', grayscale_normalArray);
 
+	// View result
+	[ctx1, canvasElement1] = await create_dynamic_canvasElement("canvasElement1_id", "canvasElement1_className", 1);
+	document.getElementById('data_display').appendChild(canvasElement1);
+	const grayscale_typedarray = await new Uint8ClampedArray(grayscale_normalArray);
+	var grayscale_imageData = await new ImageData(grayscale_typedarray, canvasElement1.width, canvasElement1.height);
+	ctx1.putImageData(grayscale_imageData, 0, 0);
+	
 	// ----------------------
 	
 	// "Invert"/threshold the pixels (make pixel values 0 to 254 equal 0, 255)
-	const inverted = await bitwise_not(normalArray);
+	const inverted_normalArray = await bitwise_not(normalArray);
+	console.log('inverted_normalArray: ', inverted_normalArray);
+
+	// View result
+	[ctx2, canvasElement2] = await create_dynamic_canvasElement("canvasElement2_id", "canvasElement2_className", 2);
+	document.getElementById('data_display').appendChild(canvasElement2);
+	const inverted_typedarray = await new Uint8ClampedArray(inverted_normalArray);
+	var inverted_imageData = await new ImageData(inverted_typedarray, canvasElement2.width, canvasElement2.height);
+	ctx2.putImageData(inverted_imageData, 0, 0);
 
 	// ----------------------
 	
 	// Blur the inverted image (GaussianBlur)
-	[ctx1, canvasElement1] = await create_dynamic_canvasElement("canvasElement1_id", "canvasElement1_className", 1);
+	[ctx3, canvasElement3] = await create_dynamic_canvasElement("canvasElement3_id", "canvasElement3_className", 3);
+	document.getElementById('data_display').appendChild(canvasElement3);
+	var inverted_imageData = await new ImageData(inverted_typedarray, canvasElement3.width, canvasElement3.height);
+	ctx3.putImageData(inverted_imageData, 0, 0);
 	
-	// Add the canvas to the DOM
-	document.getElementById('data_display').appendChild(canvasElement1);
-	
-	const inverted_typedarray = await new Uint8ClampedArray(inverted);
-	var inverted_imageData = await new ImageData(inverted_typedarray, canvasElement1.width, canvasElement1.height);
-	ctx1.putImageData(inverted_imageData, 0, 0);
-	canvasElement1.style.filter = 'blur(4px)';
-	const blurred = await convert_canvas_into_ImageData(ctx1);
+	canvasElement3.style.filter = 'blur(4px)';
+	const blurred_normalArray = await convert_canvas_into_ImageData(ctx3);
 
 	// ----------------------
   
 	// Blend/combine the grayscale and blurred image, to obtain [edges in the image] against a white background
-	const blend = await blend_ratio_of_pixels(grayscale, blurred);
+	const blend_normalArray = await blend_ratio_of_pixels(grayscale_normalArray, blurred_normalArray);
+	console.log('blend_normalArray: ', blend_normalArray);
 
-	const blend_typedarray = await new Uint8ClampedArray(blend);
-	// console.log('blend_typedarray: ', blend_typedarray);
-	
+	const blend_typedarray = await new Uint8ClampedArray(blend_normalArray);
 	let imageData_blend = await new ImageData(blend_typedarray, width_ORG, height_ORG);
 
 	// Make a third canvas
-	const [ctx2, canvasElement2] = await create_dynamic_canvasElement("canvasElement2_id", "canvasElement2_className", 2);
-	
-	// Add the canvas to the DOM
-	document.getElementById('data_display').appendChild(canvasElement2);
-	
-	ctx2.putImageData(imageData_blend, 0, 0);
+	const [ctx4, canvasElement4] = await create_dynamic_canvasElement("canvasElement4_id", "canvasElement4_className", 4);
+	document.getElementById('data_display').appendChild(canvasElement4);
+	ctx4.putImageData(imageData_blend, 0, 0);
 	
 	// ----------------------
   
