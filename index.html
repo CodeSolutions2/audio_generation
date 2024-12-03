@@ -3,22 +3,47 @@
 <head></head>
 <body>    
 
-
+<h1>Generate white noise</h1>
+<ol type="A">
+	<li>Click on filter_noise to play white noise.</li>
+</ol>
+	
 <audio controls=true id="audio_input_display_js" preload="auto" style="display:block"></audio>
   
 <button id="filter_noise" onclick="filter_noise()" style="display:block">filter_noise</button>
 
 <script>
 
-
 // var audioContext = new (window.AudioContext || window.webkitAudioContext)();
+// OR
+const audioContext = new AudioContext();
+	
+// ----------------------------------------------------
+
+async function processEvent_stop_audio(event) {
+	console.log('event audioElement: ', event);
+	() => { 
+		audioContext.createBufferSource(document.getElementById("audio_input_display_js")).pause(); 
+	}
+}
+	
+document.getElementById('audio_input_display_js').addEventListener("pause", processEvent_stop_audio, false);
+
+async function processEvent_play_audio(event) {
+	console.log('event audioElement: ', event);
+	audioContext.createBufferSource(document.getElementById("audio_input_display_js")).play();
+}
+	
+document.getElementById('audio_input_display_js').addEventListener("play", processEvent_play_audio, false);
+	
+// ----------------------------------------------------
 
 // https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/volume
 document.getElementById("audio_input_display_js").volume = 0.1; 
-  
-async function filter_noise() {
+
+// ----------------------------------------------------
 	
-	const audioContext = new AudioContext();
+async function filter_noise() {
 	
 	// Play the music/audio file
 	
@@ -55,8 +80,9 @@ async function filter_noise() {
 
 }
 
+// ----------------------------------------------------
+
 
 </script>
-
-  </body>
+</body>
 </html>
