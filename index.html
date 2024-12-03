@@ -11,30 +11,34 @@
 <script>
 
 
-var audioContext = new (window.AudioContext || window.webkitAudioContext)();
+// var audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
 // https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/volume
 document.getElementById("audio_input_display_js").volume = 0.1; 
   
 async function filter_noise() {
-
-
-
-    // Play the music/audio file
+	
+	const audioCtx = new AudioContext();
+	
+	// Play the music/audio file
 				// Transform audiodata into correct format for source.buffer
 				// https://developer.mozilla.org/en-US/docs/Web/API/BaseAudioContext/createBufferSource
 				let channels = 2; 
-				let frameCount = decoded_audiobuffer.length; // sample_length
-				let sampleRate = decoded_audiobuffer.sampleRate; // sample_rate
+				let frameCount = audioCtx.sampleRate * 2.0; // sample_length
+				let sampleRate = audioCtx.sampleRate; // sample_rate
   
 				const myArrayBuffer = audioContext.createBuffer(channels, frameCount, sampleRate);
+
+				for (let channel=0; channel<channels; channel++) {
+					
+					// Fill the buffer with audio data
+					const channelData_test = myArrayBuffer.getChannelData(channel); // Access the channel data for the first channel
 				
-				// Fill the buffer with audio data
-				const channelData_test = myArrayBuffer.getChannelData(0); // Access the channel data for the first channel
-				
-				// One knows the length of channelData_test because of the designated sample_length and sample_rate
-				for (let i = 0; i < channelData_test.length; i++) {
-					channelData_test[i] = channelData[i];
+					// One knows the length of channelData_test because of the designated sample_length and sample_rate
+					// frameCount OR channelData_test.length
+					for (let i = 0; i < channelData_test.length; i++) {
+						channelData_test[i] = Math.random() * 2 - 1;
+					}
 				}
 				
 				var source = audioContext.createBufferSource(document.getElementById("audio_input_display_js"));
