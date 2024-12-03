@@ -20,24 +20,6 @@ const audioContext = new AudioContext();
 	
 // ----------------------------------------------------
 
-async function processEvent_stop_audio(event) {
-	console.log('event audioElement: ', event);
-	() => { 
-		audioContext.createBufferSource(document.getElementById("audio_input_display_js")).pause(); 
-	}
-}
-	
-// document.getElementById('audio_input_display_js').addEventListener("pause", processEvent_stop_audio, false);
-
-async function processEvent_play_audio(event) {
-	console.log('event audioElement: ', event);
-	audioContext.createBufferSource(document.getElementById("audio_input_display_js")).play();
-}
-	
-// document.getElementById('audio_input_display_js').addEventListener("play", processEvent_play_audio, false);
-	
-// ----------------------------------------------------
-
 // https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/volume
 document.getElementById("audio_input_display_js").volume = 0.1; 
 
