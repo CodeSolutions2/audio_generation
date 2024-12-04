@@ -97,8 +97,12 @@ async function play_filter_noise_way0() {
 	
 	// Allows audio to be changed(play, pause, etc) from audioElement
 	// audioElement.appendChild(sourceElement);
+	// RESULT: Node append error
 	// OR
-	audioElement.src = URL.createObjectURL(sourceElement);
+	// audioElement.src = URL.createObjectURL(sourceElement);
+	// RESULT: TypeError: URL.createObjectURL: Argument 1 is not valid for any of the 1-argument overloads.
+	// OR
+	audioElement.src = sourceElement.toDataURL("audio/mp3");
 
 	// -------------------
 
@@ -126,6 +130,8 @@ async function play_filter_noise_way1() {
 	// Create an SourceElement (audioSourceNode)
 	var sourceElement = document.createElement('source');
 	sourceElement.buffer = WhiteNoise_ArrayBuffer;
+	// <source> element has no “src” attribute. Media resource load failed.
+	sourceElement.src = sourceElement.toDataURL("audio/mp3");
 
 	audioElement.appendChild(sourceElement);
 	document.getElementById('data_display').appendChild(audioElement);
