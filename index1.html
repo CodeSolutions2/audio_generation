@@ -270,7 +270,7 @@ async function play_filter_noise_way5() {
 
 	// -----------------------------
 	
-	var url = await audioContext.decodeAudioData(arraybuffer)
+	var url = await audioContext.decodeAudioData(arrayBuffer)
 		.then(async function(decoded_audiobuffer) { 
 			console.log('decoded_audiobuffer: ', decoded_audiobuffer);
 			
