@@ -167,7 +167,8 @@ async function play_filter_noise_way3() {
 			return URL.createObjectURL(blob_object);
 		});
 	console.log('url: ', url);
-	// RESULT: 
+	// RESULT: HTTP “Content-Type” of “text/plain” is not supported. Load of media resource blob:https://codesolutions2.github.io/aeefc31b-0e92-4e0f-b923-9303d504f1ad failed.
+	// Cannot play media. No decoders for requested formats: text/plain
 
 	// -----------------------------
 	
@@ -209,6 +210,8 @@ async function play_filter_noise_way4() {
 			return audioContext.decodeAudioData(arraybuffer); 
 		})
 		.then(async function(decoded_audiobuffer) { 
+			console.log('decoded_audiobuffer: ', decoded_audiobuffer);
+			
 			return URL.createObjectURL(decoded_audiobuffer);
 		})
 	
@@ -226,6 +229,10 @@ async function play_filter_noise_way4() {
 }
 
 // -----------------------------------------------
+
+
+
+
 
 
 
