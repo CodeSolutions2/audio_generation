@@ -23,11 +23,13 @@
 // The audioContext via the audioElement can play Float32Array data.
 // var audioContext = new (window.AudioContext || window.webkitAudioContext)();
 // OR
-const audioContext = new AudioContext();
+
 	
 // ----------------------------------------------------
 
 async function create_white_noise() {
+
+	const audioContext = new AudioContext();
 
 	// Transform audiodata into correct format for source.buffer
 	// https://developer.mozilla.org/en-US/docs/Web/API/BaseAudioContext/createBufferSource
@@ -52,7 +54,7 @@ async function create_white_noise() {
 			channelData_test[i] = Math.random() * 2 - 1;
 		}
 	}
-	return WhiteNoise_ArrayBuffer;
+	return [audioContext, WhiteNoise_ArrayBuffer];
 }
 
 // -----------------------------------------------
@@ -81,20 +83,35 @@ async function play_filter_noise_way0() {
 
 	const audioElement = await create_an_audioElement();
 	
-	const WhiteNoise_ArrayBuffer = await create_white_noise();
+	const [audioContext, WhiteNoise_ArrayBuffer] = await create_white_noise();
 
+	// -------------------
+	
 	// Array is given to sourceElement
 	var sourceElement = audioContext.createBufferSource(audioElement);
 	sourceElement.buffer = WhiteNoise_ArrayBuffer;
 	sourceElement.id = "sourceElement_id";			
 	sourceElement.connect(audioContext.destination);
 
-	//  To play an entire `source.buffer` using `source` in JavaScript, you can set the `source.start(0)` method to start playing the audio from the beginning.
-	sourceElement.start(0);
-
+	// -------------------
+	
+	// Allows audio to be changed(play, pause, etc) from audioElement
 	// audioElement.appendChild(sourceElement);
+	// OR
+	audioElement.src = URL.createObjectURL(sourceElement);
+
+	// -------------------
+
+	// make audioElement visible
 	document.getElementById('data_display').appendChild(audioElement);
 
+	// -------------------
+
+	// play audio when page loads
+	sourceElement.start(0);
+
+	// -------------------
+	
 	// RESULT: It plays with the button, but not with the audio controls
 }
 
@@ -126,6 +143,7 @@ async function play_filter_noise_way2() {
 	
 	const blob_object = new Blob([WhiteNoise_ArrayBuffer], {type: "audio/mp3"});
 	audioElement.src = URL.createObjectURL(blob_object);
+	// Media resource blob:https://codesolutions2.github.io/16be201d-b21b-4953-83ed-fbfa201c4bdd could not be decoded, error: Error Code: NS_ERROR_DOM_MEDIA_METADATA_ERR (0x806e0006)
 
 	document.getElementById('data_display').appendChild(audioElement);
 	
