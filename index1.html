@@ -157,13 +157,41 @@ async function play_filter_noise_way1() {
 }
 	
 // -----------------------------------------------
+
+async function convert_Typedarray_to_ASCII_str(TypedArray) {
 	
+	// Convert TypedArray to normalArray
+	const normalArray = await Array.from(TypedArray.data);
+	// console.log('normalArray: ', normalArray)
+	
+	// Convert [normalArray of bytes] to text_characters
+	var ASCII_stringArray = normalArray.map((val) => { return String.fromCharCode(val); });
+	// console.log('ASCII_stringArray: ', ASCII_stringArray);
+	
+	// Join all the ASCII characters to form a string
+	var ASCII_str = ASCII_stringArray.join('');
+	// console.log("ASCII_str: ", ASCII_str);
+	
+	// Transform ASCII string into a base64 string
+	var base64_string = btoa(ASCII_str);
+	// console.log("base64_string: ", base64_string);
+
+	// -----------------------------
+
+	return [ASCII_str, base64_string];
+}
+
+// -----------------------------------------------
+
 async function play_filter_noise_way2() {
 	
 	const audioElement = await create_an_audioElement();
-	
-	// const WhiteNoise_ArrayBuffer = await create_white_noise();
 
+	// -----------------------------
+	
+	// Obtain array of audio data
+	// const WhiteNoise_ArrayBuffer = await create_white_noise();
+	// OR
 	// Create an array of white noise data
 	const whiteNoiseData_TypeArray = new Float32Array(44100); // Assuming 44100 samples for 1 second of audio
 	
@@ -171,18 +199,38 @@ async function play_filter_noise_way2() {
 	    whiteNoiseData_TypeArray[i] = Math.random() * 2 - 1; // Generate random values between -1 and 1
 	}
 
+	// -----------------------------
 	
+	// Convert audio data array to ASCII_str
+	const [ASCII_str, base64_string] = await convert_Typedarray_to_ASCII_str(whiteNoiseData_TypeArray)
+	
+	// Add the audio header on the string, so the audioElement can understand
+	const header_base64_string = 'data:audio\/mpeg;base64,'+base64_string;
+
+	var url = await fetch(header_base64_string)
+		.then(response => response.blob())
+		.then(async function(blob_object) {
+			console.log('blob_object: ', blob_object)
+			return URL.createObjectURL(blob_object);
+		});
+	console.log('url: ', url);
+
+	// OR
 	
 	// const blob_object = new Blob([WhiteNoise_ArrayBuffer], {type: "audio/mp3"});
-	// OR
-	const blob_object = new Blob([whiteNoiseData_TypeArray], {type: "audio/mp3"});
-	
-	audioElement.src = URL.createObjectURL(blob_object);
-	// Media resource blob:https://codesolutions2.github.io/16be201d-b21b-4953-83ed-fbfa201c4bdd could not be decoded, error: Error Code: NS_ERROR_DOM_MEDIA_METADATA_ERR (0x806e0006)
+	// const blob_object = await new Blob([whiteNoiseData_TypeArray], {type: "audio/mp3"})
+	// var url = await URL.createObjectURL(blob_object);
+	// RESULT: Media resource blob:https://codesolutions2.github.io/16be201d-b21b-4953-83ed-fbfa201c4bdd could not be decoded, error: Error Code: NS_ERROR_DOM_MEDIA_METADATA_ERR (0x806e0006)
 
+	// -----------------------------
+	
+	audioElement.src = url;
+
+	// -----------------------------
+	
 	document.getElementById('data_display').appendChild(audioElement);
 	
-	// RESULT: 
+	// -----------------------------
 }
 	
 // -----------------------------------------------
@@ -206,7 +254,7 @@ async function analyse_audioElement(audioContext) {
 	console.log('data_point_length: ', data_point_length);
 }
 
-	
+// -----------------------------------------------
 
 </script>
 </body>
