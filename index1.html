@@ -25,9 +25,9 @@ async function play_filter_noise_way0() {
 
 	// -------------------
 	
-	const [audioContext, WhiteNoise_AudioBuffer, whiteNoiseData_TypeArray] = await create_audio_data();
+	const [audioContext, WhiteNoise_AudioBuffer, WhiteNoiseData_TypeArray] = await create_audio_data();
 	// WhiteNoise_AudioBuffer:  AudioBuffer { sampleRate: 48000, length: 96000, duration: 2, numberOfChannels: 2 }
-	// whiteNoiseData_TypeArray: buffer, byteLength, byteOffset, length
+	// WhiteNoiseData_TypeArray: buffer, byteLength, byteOffset, length
 	
 	// -------------------
 	
@@ -76,14 +76,14 @@ async function play_filter_noise_way1() {
 
 	// -----------------------------
 	
-	const [audioContext, WhiteNoise_AudioBuffer, whiteNoiseData_TypeArray] = await create_audio_data();
+	const [audioContext, WhiteNoise_AudioBuffer, WhiteNoiseData_TypeArray] = await create_audio_data();
 	// WhiteNoise_AudioBuffer:  AudioBuffer { sampleRate: 48000, length: 96000, duration: 2, numberOfChannels: 2 }
-	// whiteNoiseData_TypeArray: buffer, byteLength, byteOffset, length
+	// WhiteNoiseData_TypeArray: buffer, byteLength, byteOffset, length
 	
 	// -----------------------------
 	
 	// Convert audio data array to ASCII_str
-	const [ASCII_str, base64_string] = await convert_Float32Array_to_ASCII_str(whiteNoiseData_TypeArray)
+	const [ASCII_str, base64_string] = await convert_Float32Array_to_ASCII_str(WhiteNoiseData_TypeArray)
 	
 	// Add the audio header on the string, so the audioElement can understand
 	const header_base64_string = 'data:audio\/mpeg;base64,'+base64_string;
@@ -146,12 +146,6 @@ async function create_an_audioElement() {
 
 // ----------------------------------------------------
 
-async function WhiteNoise_equation() {
-	return Math.random() * 2 - 1; // Generate random values between -1 and 1
-}
-
-// ----------------------------------------------------
-
 async function create_audio_data() {
 
 	const audioContext = new AudioContext();
@@ -179,7 +173,7 @@ async function create_audio_data() {
 		// One knows the length of channelData_test because of the designated sample_length and sample_rate
 		// frameCount OR channelData_AudioBuffer.length
 		for (let i = 0; i < channelData_AudioBuffer.length; i++) {
-			channelData_AudioBuffer[i] = await WhiteNoise_equation();
+			channelData_AudioBuffer[i] = Math.random() * 2 - 1; // Generate random values between -1 and 1
 		}
 	}
 	console.log('WhiteNoise_AudioBuffer: ', WhiteNoise_AudioBuffer);
@@ -187,16 +181,16 @@ async function create_audio_data() {
 	// -------------------
 	
 	// Make a TypedArray with only one channel
-	const whiteNoiseData_TypeArray = new Float32Array(audioContext.sampleRate);
+	const WhiteNoiseData_TypeArray = new Float32Array(audioContext.sampleRate);
 	
-	for (let i = 0; i < whiteNoiseData_TypeArray.length; i++) {
-	    whiteNoiseData_TypeArray[i] = await WhiteNoise_equation(); 
+	for (let i = 0; i < WhiteNoiseData_TypeArray.length; i++) {
+	    WhiteNoiseData_TypeArray[i] = Math.random() * 2 - 1; // Generate random values between -1 and 1
 	}
-	console.log('whiteNoiseData_TypeArray: ', whiteNoiseData_TypeArray);
+	console.log('WhiteNoiseData_TypeArray: ', WhiteNoiseData_TypeArray);
 
 	// -------------------
 	
-	return [audioContext, WhiteNoise_AudioBuffer, whiteNoiseData_TypeArray];
+	return [audioContext, WhiteNoise_AudioBuffer, WhiteNoiseData_TypeArray];
 }
 	
 // -----------------------------------------------
