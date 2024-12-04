@@ -23,9 +23,6 @@
 async function play_filter_noise() {
 
 	const audioElement = await create_an_audioElement();
-	
-	// Make audioElement visible
-	document.getElementById('data_display').appendChild(audioElement);
 
 	const audioContext = new AudioContext();
 	// default audioContext.sampleRate is 48000, a common value is 44100
