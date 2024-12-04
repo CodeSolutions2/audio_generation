@@ -10,308 +10,41 @@
 
 <input type="range" id="slider_id" name="slider_name" min="1" max="10" /><label for="slider_name">noise amplitude</label>
 
-
-	
 <div id="data_display" style="display:block; text-align: left; width: 600px;"></div>
 	
-<button id="play_filter_noise_way0" onclick="play_filter_noise_way0()" style="display:block">play_filter_noise_way0</button>
-<button id="play_filter_noise_way1" onclick="play_filter_noise_way1()" style="display:block">play_filter_noise_way1</button>
-<button id="play_filter_noise_way2" onclick="play_filter_noise_way2()" style="display:block">play_filter_noise_way2</button>
-<button id="play_filter_noise_way3" onclick="play_filter_noise_way3()" style="display:block">play_filter_noise_way3</button>
-<button id="play_filter_noise_way4" onclick="play_filter_noise_way4()" style="display:block">play_filter_noise_way4</button>
-<button id="play_filter_noise_way5" onclick="play_filter_noise_way5()" style="display:block">play_filter_noise_way5</button>
+<button id="play_filter_noise" onclick="play_filter_noise()" style="display:block">play_filter_noise</button>
 
-
-<!-- ---------------------------------------- -->
-<!-- CSS -->
-<style>
-
-.slider_class { position: relative; display: inline-block; width: 20px; height: 60px; border: 0.25px solid black; border-radius: 5px; }
-
-.slider {position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #333333;
-  -webkit-transition: .4s;
-  transition: .4s;
-	border-radius: 5px;
-	border: 0.25px solid black;}
-</style>
-
-
-	
 	
 <script>
 
+	
 // -----------------------------------------------
 
-async function play_filter_noise_way0() {
+async function play_filter_noise() {
 
 	const audioElement = await create_an_audioElement();
-
-	// -------------------
 	
-	const [audioContext, WhiteNoise_AudioBuffer, WhiteNoiseData_TypeArray] = await create_audio_data();
-	// WhiteNoise_AudioBuffer:  AudioBuffer { sampleRate: 48000, length: 96000, duration: 2, numberOfChannels: 2 }
-	// WhiteNoiseData_TypeArray: buffer, byteLength, byteOffset, length
-	
-	// -------------------
-	
-	// Array is given to sourceElement
-	var sourceElement = audioContext.createBufferSource(audioElement);
-	sourceElement.buffer = WhiteNoise_AudioBuffer;
-	sourceElement.id = "sourceElement_id";			
-	sourceElement.connect(audioContext.destination);
-
-	// -------------------
-	
-	// Allows audio to be changed(play, pause, etc) from audioElement
-	audioElement.src = WhiteNoise_AudioBuffer;
-	// RESULT: HTTP load failed with status 404. Load of media resource https://codesolutions2.github.io/temp_repo2/[object%20AudioBuffer] failed
-	// OR
-	// audioElement.appendChild(sourceElement);
-	// RESULT: Node append error
-	// OR
-	// audioElement.src = sourceElement.buffer;
-	// RESULT: HTTP load failed with status 404. Load of media resource https://codesolutions2.github.io/temp_repo2/[object%20AudioBuffer] failed.
-	// OR
-	// audioElement.src = URL.createObjectURL(sourceElement);
-	// RESULT: TypeError: URL.createObjectURL: Argument 1 is not valid for any of the 1-argument overloads.
-	// OR
-	// audioElement.src = sourceElement.toDataURL("audio/mp3");
-	// RESULT: TypeError: sourceElement.toDataURL is not a function
-
-	// -------------------
-
 	// Make audioElement visible
 	document.getElementById('data_display').appendChild(audioElement);
 
-	// -------------------
+	const audioContext = new AudioContext();
+	// default audioContext.sampleRate is 48000, a common value is 44100
 
-	// play audio when page loads
+	var sourceElement = audioContext.createBufferSource(audioElement);
+
+	// -------------------
+	
+	const [WhiteNoise_AudioBuffer, WhiteNoiseData_TypeArray] = await create_audio_data(audioContext);
+	// WhiteNoise_AudioBuffer:  AudioBuffer { sampleRate: 48000, length: 96000, duration: 2, numberOfChannels: 2 }
+	// WhiteNoiseData_TypeArray: buffer, byteLength, byteOffset, length
+	
+	sourceElement.buffer = WhiteNoise_AudioBuffer;
+	sourceElement.id = "sourceElement_id";			
+	sourceElement.connect(audioContext.destination);
 	sourceElement.start(0);
 
 	// -------------------
 }
-
-// -----------------------------------------------
-
-// Create blob_object from a TypedArray - url
-async function play_filter_noise_way1() {
-	
-	const audioElement = await create_an_audioElement();
-
-	// -----------------------------
-	
-	const [audioContext, WhiteNoise_AudioBuffer, WhiteNoiseData_TypeArray] = await create_audio_data();
-	// WhiteNoise_AudioBuffer:  AudioBuffer { sampleRate: 48000, length: 96000, duration: 2, numberOfChannels: 2 }
-	// WhiteNoiseData_TypeArray: buffer, byteLength, byteOffset, length
-	
-	// -----------------------------
-	
-	const blob_object = await new Blob([WhiteNoiseData_TypeArray], {type: "audio/mp3"})
-	var url = await URL.createObjectURL(blob_object);
-	// RESULT: Media resource blob:https://codesolutions2.github.io/16be201d-b21b-4953-83ed-fbfa201c4bdd could not be decoded, error: Error Code: NS_ERROR_DOM_MEDIA_METADATA_ERR (0x806e0006)
-
-	// -----------------------------
-	
-	audioElement.src = url;
-
-	// -----------------------------
-	
-	document.getElementById('data_display').appendChild(audioElement);
-	
-	// -----------------------------
-}
-
-// -----------------------------------------------
-
-// Fetch on base64_string with header - get blob_object - url
-async function play_filter_noise_way2() {
-	
-	const audioElement = await create_an_audioElement();
-
-	// -----------------------------
-	
-	const [audioContext, WhiteNoise_AudioBuffer, WhiteNoiseData_TypeArray] = await create_audio_data();
-	// WhiteNoise_AudioBuffer:  AudioBuffer { sampleRate: 48000, length: 96000, duration: 2, numberOfChannels: 2 }
-	// WhiteNoiseData_TypeArray: buffer, byteLength, byteOffset, length
-	
-	// -----------------------------
-	
-	// Convert audio data array to ASCII_str
-	const [ASCII_str, base64_string] = await convert_Float32Array_to_ASCII_str(WhiteNoiseData_TypeArray)
-	
-	// Add the audio header on the string, so the audioElement can understand
-	const header_base64_string = 'data:audio\/mpeg;base64,'+base64_string;
-
-	var url = await fetch(header_base64_string)
-		.then(response => response.blob())
-		.then(async function(blob_object) {
-			console.log('blob_object: ', blob_object)
-			return URL.createObjectURL(blob_object);
-		});
-	console.log('url: ', url);
-	// RESULT: Media resource blob:https://codesolutions2.github.io/16be201d-b21b-4953-83ed-fbfa201c4bdd could not be decoded, error: Error Code: NS_ERROR_DOM_MEDIA_METADATA_ERR (0x806e0006)
-
-	// -----------------------------
-	
-	audioElement.src = url;
-
-	// -----------------------------
-	
-	document.getElementById('data_display').appendChild(audioElement);
-	
-	// -----------------------------
-}
-
-// -----------------------------------------------
-	
-// Fetch on base64_string - get blob_object - url
-async function play_filter_noise_way3() {
-	
-	const audioElement = await create_an_audioElement();
-
-	// -----------------------------
-	
-	const [audioContext, WhiteNoise_AudioBuffer, WhiteNoiseData_TypeArray] = await create_audio_data();
-	// WhiteNoise_AudioBuffer:  AudioBuffer { sampleRate: 48000, length: 96000, duration: 2, numberOfChannels: 2 }
-	// WhiteNoiseData_TypeArray: buffer, byteLength, byteOffset, length
-	
-	// -----------------------------
-	
-	// Convert audio data array to ASCII_str
-	const [ASCII_str, base64_string] = await convert_Float32Array_to_ASCII_str(WhiteNoiseData_TypeArray)
-
-	var url = await fetch(base64_string)
-		.then(response => response.blob())
-		.then(async function(blob_object) {
-			console.log('blob_object: ', blob_object)
-			return URL.createObjectURL(blob_object);
-		});
-	console.log('url: ', url);
-	// RESULT: HTTP “Content-Type” of “text/plain” is not supported. Load of media resource blob:https://codesolutions2.github.io/aeefc31b-0e92-4e0f-b923-9303d504f1ad failed.
-	// Cannot play media. No decoders for requested formats: text/plain
-
-	// -----------------------------
-	
-	audioElement.src = url;
-
-	// -----------------------------
-	
-	document.getElementById('data_display').appendChild(audioElement);
-	
-	// -----------------------------
-}
-
-// -----------------------------------------------
-
-// Fetch on base64_string - get blob_object - url
-async function play_filter_noise_way4() {
-	
-	const audioElement = await create_an_audioElement();
-
-	// -----------------------------
-	
-	var [audioContext, WhiteNoise_AudioBuffer, WhiteNoiseData_TypeArray] = await create_audio_data();
-	// WhiteNoise_AudioBuffer:  AudioBuffer { sampleRate: 48000, length: 96000, duration: 2, numberOfChannels: 2 }
-	// WhiteNoiseData_TypeArray: buffer, byteLength, byteOffset, length
-	
-	// -----------------------------
-
-	// Convert audio data array to ASCII_str
-	const [ASCII_str, base64_string] = await convert_Float32Array_to_ASCII_str(WhiteNoiseData_TypeArray)
-
-	// Add the audio header on the string, so the audioElement can understand
-	// const header_base64_string = 'data:audio/mp3;base64,'+base64_string;
-	
-	// Convert WhiteNoiseData_TypeArray to arraybuffer
-	// var url = await fetch(header_base64_string)
-	// RESULT: DOMException: The buffer passed to decodeAudioData contains an unknown content type.
-	// OR
-	// var url = await fetch(base64_string)
-	// RESULT: DOMException: The buffer passed to decodeAudioData contains an unknown content type.
-	// OR
-	var url = await fetch(WhiteNoise_AudioBuffer)
-	// RESULT: DOMException: The buffer passed to decodeAudioData contains an unknown content type.
-		.then(response => response.arrayBuffer())
-		.then(async function(arraybuffer) { 
-			console.log('arraybuffer: ', arraybuffer);  // ArrayBuffer { byteLength: 9379 }
-			return audioContext.decodeAudioData(arraybuffer); 
-		})
-		.then(async function(decoded_audiobuffer) { 
-			console.log('decoded_audiobuffer: ', decoded_audiobuffer);
-			
-			return URL.createObjectURL(decoded_audiobuffer);
-		})
-	
-	console.log('url: ', url);
-
-	// -----------------------------
-	
-	audioElement.src = url;
-
-	// -----------------------------
-	
-	document.getElementById('data_display').appendChild(audioElement);
-	
-	// -----------------------------
-}
-
-// -----------------------------------------------
-
-// Fetch on base64_string - get blob_object - url
-async function play_filter_noise_way5() {
-	
-	const audioElement = await create_an_audioElement();
-
-	// -----------------------------
-	
-	const [audioContext, WhiteNoise_AudioBuffer, WhiteNoiseData_TypeArray] = await create_audio_data();
-	// WhiteNoise_AudioBuffer:  AudioBuffer { sampleRate: 48000, length: 96000, duration: 2, numberOfChannels: 2 }
-	// WhiteNoiseData_TypeArray: buffer, byteLength, byteOffset, length
-	
-	// -----------------------------
-
-	// Convert TypedArray to normalArray
-	const normalArray = await Array.from(WhiteNoiseData_TypeArray);
-
-	// Convert an Array to an ArrayBuffer
-	var arrayBuffer = await new ArrayBuffer(WhiteNoiseData_TypeArray.length);
-	var Float32ArrayView = await new Float32Array(arrayBuffer);
-	for (let i=0; i<WhiteNoiseData_TypeArray.length; i++) {
-		Float32ArrayView[i] = normalArray[i];
-	}
-	console.log('arrayBuffer:', arrayBuffer);
-
-	// -----------------------------
-	
-	var url = await audioContext.decodeAudioData(arrayBuffer)
-		.then(async function(decoded_audiobuffer) { 
-			console.log('decoded_audiobuffer: ', decoded_audiobuffer);
-			
-			return URL.createObjectURL(decoded_audiobuffer);
-		})
-	
-	console.log('url: ', url);
-
-	// -----------------------------
-	
-	audioElement.src = url;
-
-	// -----------------------------
-	
-	document.getElementById('data_display').appendChild(audioElement);
-	
-	// -----------------------------
-}
-
-// -----------------------------------------------
-
-
 
 
 
@@ -343,17 +76,11 @@ async function create_an_audioElement() {
 
 // ----------------------------------------------------
 
-async function create_audio_data() {
-
-	const audioContext = new AudioContext();
-	// default audioContext.sampleRate is 48000, a common value is 44100
-
-	// -------------------
+async function create_audio_data(audioContext) {
 	
 	// Transform audiodata into correct format for source.buffer
 	// https://developer.mozilla.org/en-US/docs/Web/API/BaseAudioContext/createBufferSource
-	const duration_seconds = 2; 
-	// const duration_seconds = 1 * 60 * 60; // set for 1 hour
+	const duration_seconds = 1; 
 	
 	// -------------------
 
@@ -395,7 +122,7 @@ async function create_audio_data() {
 
 	// -------------------
 	
-	return [audioContext, WhiteNoise_AudioBuffer, WhiteNoiseData_TypeArray];
+	return [WhiteNoise_AudioBuffer, WhiteNoiseData_TypeArray];
 }
 	
 // -----------------------------------------------
@@ -417,32 +144,6 @@ async function analyse_audioElement(audioContext) {
 	// **** not a correct value = 0
 	const data_point_length = time_length // time_sample;  // frameCount, 16992000
 	console.log('data_point_length: ', data_point_length);
-}
-
-// -----------------------------------------------
-
-async function convert_Float32Array_to_ASCII_str(Float32Array) {
-	
-	// Convert TypedArray to normalArray
-	// const normalArray = await Array.from(Float32Array.data);
-	const normalArray = await Array.from(Float32Array);
-	// console.log('normalArray: ', normalArray)
-	
-	// Convert [normalArray of bytes] to text_characters
-	var ASCII_stringArray = normalArray.map((val) => { return String.fromCharCode(val); });
-	// console.log('ASCII_stringArray: ', ASCII_stringArray);
-	
-	// Join all the ASCII characters to form a string
-	var ASCII_str = ASCII_stringArray.join('');
-	// console.log("ASCII_str: ", ASCII_str);
-	
-	// Transform ASCII string into a base64 string
-	var base64_string = btoa(ASCII_str);
-	// console.log("base64_string: ", base64_string);
-
-	// -----------------------------
-
-	return [ASCII_str, base64_string];
 }
 
 // -----------------------------------------------
