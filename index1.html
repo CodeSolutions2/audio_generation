@@ -20,17 +20,13 @@
 	
 <script>
 
-
+// ----------------------------------------------------
+	
 // The audioContext via the audioElement can play Float32Array data.
 // var audioContext = new (window.AudioContext || window.webkitAudioContext)();
 // OR
 const audioContext = new AudioContext();
 	
-// ----------------------------------------------------
-
-// https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/volume
-document.getElementById("audio_input_display_js").volume = 0.1; 
-
 // ----------------------------------------------------
 
 async function create_white_noise() {
@@ -75,6 +71,9 @@ async function create_an_audioElement() {
 	audioElement.setAttribute('autoplay', true);
 	audioElement.setAttribute('preload', "auto");
 
+	// https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/volume
+	audioElement.volume = 0.1; 
+
 	return audioElement;
 }
 
@@ -87,13 +86,18 @@ async function play_filter_noise_way0() {
 	const WhiteNoise_ArrayBuffer = await create_white_noise();
 
 	// Array is given to sourceElement
-	var source = audioContext.createBufferSource(audioElement);
-	source.buffer = WhiteNoise_ArrayBuffer;
-	source.id = "sourceElement";			
-	source.connect(audioContext.destination);
+	var sourceElement = audioContext.createBufferSource(audioElement);
+	sourceElement.buffer = WhiteNoise_ArrayBuffer;
+	sourceElement.id = "sourceElement_id";			
+	sourceElement.connect(audioContext.destination);
 
 	//  To play an entire `source.buffer` using `source` in JavaScript, you can set the `source.start(0)` method to start playing the audio from the beginning.
-	source.start(0);
+	sourceElement.start(0);
+
+	audioElement.appendChild(sourceElement);
+	document.getElementById('data_display').appendChild(audioElement);
+
+	// RESULT: It plays with the button, but not with the audio controls
 }
 
 // -----------------------------------------------
@@ -109,18 +113,28 @@ async function play_filter_noise_way1() {
 	sourceElement.buffer = WhiteNoise_ArrayBuffer;
 
 	audioElement.appendChild(sourceElement);
-	
 	document.getElementById('data_display').appendChild(audioElement);
 
+	// RESULT: The button nor the audio play the noise
 }
-
-// ----------------------------------------------------
-
 	
-  // Create blob - blob URL - give blobURL to audioElement
-  // const blob_object = new Blob(myArrayBuffer, {type: "audio/mp3"});
-  // audioElement.src = URL.createObjectURL(blob_object);
-  
+// -----------------------------------------------
+	
+async function play_filter_noise_way2() {
+	
+	const audioElement = await create_an_audioElement();
+	
+	const WhiteNoise_ArrayBuffer = await create_white_noise();
+	
+	const blob_object = new Blob([WhiteNoise_ArrayBuffer], {type: "audio/mp3"});
+	audioElement.src = URL.createObjectURL(blob_object);
+
+	document.getElementById('data_display').appendChild(audioElement);
+	
+	// RESULT: 
+}
+	
+// -----------------------------------------------
 
 	
 
