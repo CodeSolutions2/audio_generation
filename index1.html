@@ -199,10 +199,11 @@ async function play_filter_noise_way4() {
 	const [ASCII_str, base64_string] = await convert_Float32Array_to_ASCII_str(WhiteNoiseData_TypeArray)
 
 	// Add the audio header on the string, so the audioElement can understand
-	const header_base64_string = 'data:audio\/mpeg;base64,'+base64_string;
+	// const header_base64_string = 'data:audio\/mpeg;base64,'+base64_string;
+	// DOMException: The buffer passed to decodeAudioData contains an unknown content type.
 	
 	// Convert WhiteNoiseData_TypeArray to arraybuffer
-	var url = await fetch(header_base64_string)
+	var url = await fetch(base64_string)
 		.then(response => response.arrayBuffer())
 		.then(async function(arraybuffer) { 
 			return audioContext.decodeAudioData(arraybuffer); 
