@@ -13,76 +13,27 @@
 	
 <button id="play_filter_noise_way0" onclick="play_filter_noise_way0()" style="display:block">play_filter_noise_way0</button>
 <button id="play_filter_noise_way1" onclick="play_filter_noise_way1()" style="display:block">play_filter_noise_way1</button>
-<button id="play_filter_noise_way2" onclick="play_filter_noise_way2()" style="display:block">play_filter_noise_way2</button>
 
 	
 <script>
-
-// ----------------------------------------------------
-	
-// The audioContext via the audioElement can play Float32Array data.
-// var audioContext = new (window.AudioContext || window.webkitAudioContext)();
-// OR
-
-	
-// ----------------------------------------------------
-
-async function create_white_noise() {
-
-	const audioContext = new AudioContext();
-
-	// -------------------
-	
-	// Transform audiodata into correct format for source.buffer
-	// https://developer.mozilla.org/en-US/docs/Web/API/BaseAudioContext/createBufferSource
-	const time_seconds = 2.0;
-
-	// -------------------
-
-	// Create an arrayBuffer
-	const channels = 2; 
-	const frameCount = audioContext.sampleRate * time_seconds; // sample_length
-	const sampleRate = audioContext.sampleRate; // sample_rate
-	const WhiteNoise_ArrayBuffer = audioContext.createBuffer(channels, frameCount, sampleRate);
-	
-	for (let channel=0; channel<channels; channel++) {
-		
-		// Fill the buffer with audio data
-		const channelData_test = WhiteNoise_ArrayBuffer.getChannelData(channel); // Access the channel data for the first channel
-	
-		// One knows the length of channelData_test because of the designated sample_length and sample_rate
-		// frameCount OR channelData_test.length
-		for (let i = 0; i < channelData_test.length; i++) {
-
-			// White noise equation
-			channelData_test[i] = Math.random() * 2 - 1;
-		}
-	}
-	console.log('WhiteNoise_ArrayBuffer: ', WhiteNoise_ArrayBuffer);
-
-	// -------------------
-	
-	// Convert ArrayBuffer to a TypedArray
-
-
-	
-	return [audioContext, WhiteNoise_ArrayBuffer];
-}
-
 
 // -----------------------------------------------
 
 async function play_filter_noise_way0() {
 
 	const audioElement = await create_an_audioElement();
-	
-	const [audioContext, WhiteNoise_ArrayBuffer] = await create_white_noise();
 
+	// -------------------
+	
+	const [audioContext, WhiteNoise_AudioBuffer, whiteNoiseData_TypeArray] = await create_audio_data();
+	// WhiteNoise_AudioBuffer:  AudioBuffer { sampleRate: 48000, length: 96000, duration: 2, numberOfChannels: 2 }
+	// whiteNoiseData_TypeArray: buffer, byteLength, byteOffset, length
+	
 	// -------------------
 	
 	// Array is given to sourceElement
 	var sourceElement = audioContext.createBufferSource(audioElement);
-	sourceElement.buffer = WhiteNoise_ArrayBuffer;
+	sourceElement.buffer = WhiteNoise_AudioBuffer;
 	sourceElement.id = "sourceElement_id";			
 	sourceElement.connect(audioContext.destination);
 
@@ -91,6 +42,8 @@ async function play_filter_noise_way0() {
 	// Allows audio to be changed(play, pause, etc) from audioElement
 	// audioElement.appendChild(sourceElement);
 	// RESULT: Node append error
+	// OR
+	audioElement.src = sourceElement.buffer;
 	// OR
 	// audioElement.src = URL.createObjectURL(sourceElement);
 	// RESULT: TypeError: URL.createObjectURL: Argument 1 is not valid for any of the 1-argument overloads.
@@ -109,65 +62,23 @@ async function play_filter_noise_way0() {
 	sourceElement.start(0);
 
 	// -------------------
+
+	await analyse_audioElement(audioContext);
 	
 	// RESULT: It plays with the button, but not with the audio controls
 }
 
 // -----------------------------------------------
-	
+
 async function play_filter_noise_way1() {
-	
-	const audioElement = await create_an_audioElement();
-	
-	const WhiteNoise_ArrayBuffer = await create_white_noise();
-
-	// Create an SourceElement (audioSourceNode)
-	var sourceElement = document.createElement('source');
-
-	// -------------------
-
-	// Add array to the audio sourceElement
-	sourceElement.buffer = WhiteNoise_ArrayBuffer;
-	// <source> element has no “src” attribute. Media resource load failed.
-	
-	// sourceElement.src = sourceElement.toDataURL("audio/mp3");
-	// RESULT: TypeError: sourceElement.toDataURL is not a function
-
-	sourceElement.src = WhiteNoise_ArrayBuffer.toDataURL("audio/mp3");
-	
-	// -------------------
-	
-	audioElement.appendChild(sourceElement);
-
-	// -------------------
-
-	// Make audioElement visible
-	document.getElementById('data_display').appendChild(audioElement);
-
-	// -------------------
-	
-	// RESULT: The button nor the audio play the noise
-}
-
-// -----------------------------------------------
-
-async function play_filter_noise_way2() {
 	
 	const audioElement = await create_an_audioElement();
 
 	// -----------------------------
 	
-	// Obtain array of audio data
-	// const WhiteNoise_ArrayBuffer = await create_white_noise();
-	// OR
-	// Create an array of white noise data
-	const whiteNoiseData_TypeArray = new Float32Array(44100); // Assuming 44100 samples for 1 second of audio
-	
-	for (let i = 0; i < whiteNoiseData_TypeArray.length; i++) {
-	    whiteNoiseData_TypeArray[i] = Math.random() * 2 - 1; // Generate random values between -1 and 1
-	}
-	console.log('whiteNoiseData_TypeArray: ', whiteNoiseData_TypeArray);
-	// buffer, byteLength, byteOffset, length
+	const [audioContext, WhiteNoise_AudioBuffer, whiteNoiseData_TypeArray] = await create_audio_data();
+	// WhiteNoise_AudioBuffer:  AudioBuffer { sampleRate: 48000, length: 96000, duration: 2, numberOfChannels: 2 }
+	// whiteNoiseData_TypeArray: buffer, byteLength, byteOffset, length
 	
 	// -----------------------------
 	
@@ -184,6 +95,7 @@ async function play_filter_noise_way2() {
 			return URL.createObjectURL(blob_object);
 		});
 	console.log('url: ', url);
+	// RESULT: Media resource blob:https://codesolutions2.github.io/16be201d-b21b-4953-83ed-fbfa201c4bdd could not be decoded, error: Error Code: NS_ERROR_DOM_MEDIA_METADATA_ERR (0x806e0006)
 
 	// OR
 	
@@ -231,6 +143,61 @@ async function create_an_audioElement() {
 
 	return audioElement;
 }
+
+// ----------------------------------------------------
+
+async function WhiteNoise_equation() {
+	return Math.random() * 2 - 1; // Generate random values between -1 and 1
+}
+
+// ----------------------------------------------------
+
+async function create_audio_data() {
+
+	const audioContext = new AudioContext();
+	// default audioContext.sampleRate is 48000, a common value is 44100
+
+	// -------------------
+	
+	// Transform audiodata into correct format for source.buffer
+	// https://developer.mozilla.org/en-US/docs/Web/API/BaseAudioContext/createBufferSource
+	const duration_seconds = 1 * 60 * 60; // set for 1 hour
+	
+	// -------------------
+
+	// Create an arrayBuffer
+	const channels = 2; 
+	const frameCount = audioContext.sampleRate * duration_seconds; // sample_length
+	const sampleRate = audioContext.sampleRate; // sample_rate
+	const WhiteNoise_AudioBuffer = audioContext.createBuffer(channels, frameCount, sampleRate);
+	
+	for (let channel=0; channel<channels; channel++) {
+		
+		// Fill the buffer with audio data per channel
+		const channelData_AudioBuffer = WhiteNoise_AudioBuffer.getChannelData(channel);
+	
+		// One knows the length of channelData_test because of the designated sample_length and sample_rate
+		// frameCount OR channelData_AudioBuffer.length
+		for (let i = 0; i < channelData_AudioBuffer.length; i++) {
+			channelData_AudioBuffer[i] = await WhiteNoise_equation();
+		}
+	}
+	console.log('WhiteNoise_AudioBuffer: ', WhiteNoise_AudioBuffer);
+
+	// -------------------
+	
+	// Make a TypedArray with only one channel
+	const whiteNoiseData_TypeArray = new Float32Array(audioContext.sampleRate);
+	
+	for (let i = 0; i < whiteNoiseData_TypeArray.length; i++) {
+	    whiteNoiseData_TypeArray[i] = await WhiteNoise_equation(); 
+	}
+	console.log('whiteNoiseData_TypeArray: ', whiteNoiseData_TypeArray);
+
+	// -------------------
+	
+	return [audioContext, WhiteNoise_AudioBuffer, whiteNoiseData_TypeArray];
+}
 	
 // -----------------------------------------------
 
@@ -258,6 +225,7 @@ async function analyse_audioElement(audioContext) {
 async function convert_Float32Array_to_ASCII_str(Float32Array) {
 	
 	// Convert TypedArray to normalArray
+	// const normalArray = await Array.from(Float32Array.data);
 	const normalArray = await Array.from(Float32Array);
 	// console.log('normalArray: ', normalArray)
 	
@@ -280,11 +248,7 @@ async function convert_Float32Array_to_ASCII_str(Float32Array) {
 
 // -----------------------------------------------
 
-// -----------------------------------------------
-
-// -----------------------------------------------
-
-// -----------------------------------------------
+	
 
 </script>
 </body>
