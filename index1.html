@@ -43,7 +43,8 @@ async function play_filter_noise_way0() {
 	// audioElement.appendChild(sourceElement);
 	// RESULT: Node append error
 	// OR
-	audioElement.src = sourceElement.buffer;
+	// audioElement.src = sourceElement.buffer;
+	// RESULT: HTTP load failed with status 404. Load of media resource https://codesolutions2.github.io/temp_repo2/[object%20AudioBuffer] failed.
 	// OR
 	// audioElement.src = URL.createObjectURL(sourceElement);
 	// RESULT: TypeError: URL.createObjectURL: Argument 1 is not valid for any of the 1-argument overloads.
@@ -70,7 +71,38 @@ async function play_filter_noise_way0() {
 
 // -----------------------------------------------
 
+// Create blob_object from a TypedArray - url
 async function play_filter_noise_way1() {
+	
+	const audioElement = await create_an_audioElement();
+
+	// -----------------------------
+	
+	const [audioContext, WhiteNoise_AudioBuffer, WhiteNoiseData_TypeArray] = await create_audio_data();
+	// WhiteNoise_AudioBuffer:  AudioBuffer { sampleRate: 48000, length: 96000, duration: 2, numberOfChannels: 2 }
+	// WhiteNoiseData_TypeArray: buffer, byteLength, byteOffset, length
+	
+	// -----------------------------
+	
+	const blob_object = await new Blob([WhiteNoiseData_TypeArray], {type: "audio/mp3"})
+	var url = await URL.createObjectURL(blob_object);
+	// RESULT: Media resource blob:https://codesolutions2.github.io/16be201d-b21b-4953-83ed-fbfa201c4bdd could not be decoded, error: Error Code: NS_ERROR_DOM_MEDIA_METADATA_ERR (0x806e0006)
+
+	// -----------------------------
+	
+	audioElement.src = url;
+
+	// -----------------------------
+	
+	document.getElementById('data_display').appendChild(audioElement);
+	
+	// -----------------------------
+}
+
+// -----------------------------------------------
+
+// Fetch on base64_string with header - get blob_object - url
+async function play_filter_noise_way2() {
 	
 	const audioElement = await create_an_audioElement();
 
@@ -97,12 +129,43 @@ async function play_filter_noise_way1() {
 	console.log('url: ', url);
 	// RESULT: Media resource blob:https://codesolutions2.github.io/16be201d-b21b-4953-83ed-fbfa201c4bdd could not be decoded, error: Error Code: NS_ERROR_DOM_MEDIA_METADATA_ERR (0x806e0006)
 
-	// OR
+	// -----------------------------
 	
-	// const blob_object = new Blob([WhiteNoise_ArrayBuffer], {type: "audio/mp3"});
-	// const blob_object = await new Blob([whiteNoiseData_TypeArray], {type: "audio/mp3"})
-	// var url = await URL.createObjectURL(blob_object);
-	// RESULT: Media resource blob:https://codesolutions2.github.io/16be201d-b21b-4953-83ed-fbfa201c4bdd could not be decoded, error: Error Code: NS_ERROR_DOM_MEDIA_METADATA_ERR (0x806e0006)
+	audioElement.src = url;
+
+	// -----------------------------
+	
+	document.getElementById('data_display').appendChild(audioElement);
+	
+	// -----------------------------
+}
+
+// -----------------------------------------------
+	
+// Fetch on base64_string - get blob_object - url
+async function play_filter_noise_way3() {
+	
+	const audioElement = await create_an_audioElement();
+
+	// -----------------------------
+	
+	const [audioContext, WhiteNoise_AudioBuffer, WhiteNoiseData_TypeArray] = await create_audio_data();
+	// WhiteNoise_AudioBuffer:  AudioBuffer { sampleRate: 48000, length: 96000, duration: 2, numberOfChannels: 2 }
+	// WhiteNoiseData_TypeArray: buffer, byteLength, byteOffset, length
+	
+	// -----------------------------
+	
+	// Convert audio data array to ASCII_str
+	const [ASCII_str, base64_string] = await convert_Float32Array_to_ASCII_str(WhiteNoiseData_TypeArray)
+
+	var url = await fetch(base64_string)
+		.then(response => response.blob())
+		.then(async function(blob_object) {
+			console.log('blob_object: ', blob_object)
+			return URL.createObjectURL(blob_object);
+		});
+	console.log('url: ', url);
+	// RESULT: 
 
 	// -----------------------------
 	
@@ -115,11 +178,16 @@ async function play_filter_noise_way1() {
 	// -----------------------------
 }
 
+// -----------------------------------------------
+
+
+
+// -----------------------------------------------
 
 
 
 
-
+	
 	
 
 // -----------------------------------------------
