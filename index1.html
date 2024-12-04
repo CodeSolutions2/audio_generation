@@ -16,6 +16,10 @@
 <button id="play_filter_noise_way2" onclick="play_filter_noise_way2()" style="display:block">play_filter_noise_way2</button>
 <button id="play_filter_noise_way3" onclick="play_filter_noise_way3()" style="display:block">play_filter_noise_way3</button>
 <button id="play_filter_noise_way4" onclick="play_filter_noise_way4()" style="display:block">play_filter_noise_way4</button>
+<button id="play_filter_noise_way5" onclick="play_filter_noise_way5()" style="display:block">play_filter_noise_way5</button>
+
+
+
 	
 <script>
 
@@ -42,7 +46,8 @@ async function play_filter_noise_way0() {
 	// -------------------
 	
 	// Allows audio to be changed(play, pause, etc) from audioElement
-	 audioElement.src = WhiteNoise_AudioBuffer;
+	// audioElement.src = WhiteNoise_AudioBuffer;
+	// RESULT: HTTP load failed with status 404. Load of media resource https://codesolutions2.github.io/temp_repo2/[object%20AudioBuffer] failed
 	// OR
 	// audioElement.appendChild(sourceElement);
 	// RESULT: Node append error
@@ -192,7 +197,7 @@ async function play_filter_noise_way4() {
 
 	// -----------------------------
 	
-	const [audioContext, WhiteNoise_AudioBuffer, WhiteNoiseData_TypeArray] = await create_audio_data();
+	var [audioContext, WhiteNoise_AudioBuffer, WhiteNoiseData_TypeArray] = await create_audio_data();
 	// WhiteNoise_AudioBuffer:  AudioBuffer { sampleRate: 48000, length: 96000, duration: 2, numberOfChannels: 2 }
 	// WhiteNoiseData_TypeArray: buffer, byteLength, byteOffset, length
 	
@@ -203,14 +208,20 @@ async function play_filter_noise_way4() {
 
 	// Add the audio header on the string, so the audioElement can understand
 	// const header_base64_string = 'data:audio\/mpeg;base64,'+base64_string;
-	// DOMException: The buffer passed to decodeAudioData contains an unknown content type.
 	
 	// Convert WhiteNoiseData_TypeArray to arraybuffer
+	// var url = await fetch(header_base64_string)
+	// RESULT: DOMException: The buffer passed to decodeAudioData contains an unknown content type.
+	// OR
+	// var url = await fetch(base64_string)
+	// RESULT: DOMException: The buffer passed to decodeAudioData contains an unknown content type.
+	// OR
 	var url = await fetch(WhiteNoise_AudioBuffer)
+	// RESULT: DOMException: The buffer passed to decodeAudioData contains an unknown content type.
 		.then(response => response.arrayBuffer())
 		.then(async function(arraybuffer) { 
-			console.log('arraybuffer: ', arraybuffer);
-			
+			console.log('arraybuffer: ', arraybuffer);  // ArrayBuffer { byteLength: 9379 }
+			audioContext = new AudioContext(); 
 			return audioContext.decodeAudioData(arraybuffer); 
 		})
 		.then(async function(decoded_audiobuffer) { 
@@ -234,7 +245,54 @@ async function play_filter_noise_way4() {
 
 // -----------------------------------------------
 
+// Fetch on base64_string - get blob_object - url
+async function play_filter_noise_way5() {
+	
+	const audioElement = await create_an_audioElement();
 
+	// -----------------------------
+	
+	const [audioContext, WhiteNoise_AudioBuffer, WhiteNoiseData_TypeArray] = await create_audio_data();
+	// WhiteNoise_AudioBuffer:  AudioBuffer { sampleRate: 48000, length: 96000, duration: 2, numberOfChannels: 2 }
+	// WhiteNoiseData_TypeArray: buffer, byteLength, byteOffset, length
+	
+	// -----------------------------
+
+	// Convert TypedArray to normalArray
+	const normalArray = await Array.from(WhiteNoiseData_TypeArray);
+
+	// Convert an Array to an ArrayBuffer
+	const length = WhiteNoiseData_TypeArray.length;
+	var arrayBuffer = new ArrayBuffer(length);
+	var Float32ArrayView = new Float32Array(arrayBuffer);
+	for (let i=0; i<length; i++) {
+		Float32ArrayView[i] = normalArray[i];
+	}
+	console.log('arrayBuffer:', arrayBuffer);
+
+	// -----------------------------
+	
+	await audioContext.decodeAudioData(arraybuffer)
+		.then(async function(decoded_audiobuffer) { 
+			console.log('decoded_audiobuffer: ', decoded_audiobuffer);
+			
+			return URL.createObjectURL(decoded_audiobuffer);
+		})
+	
+	console.log('url: ', url);
+
+	// -----------------------------
+	
+	audioElement.src = url;
+
+	// -----------------------------
+	
+	document.getElementById('data_display').appendChild(audioElement);
+	
+	// -----------------------------
+}
+
+// -----------------------------------------------
 
 
 
