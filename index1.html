@@ -102,11 +102,12 @@ async function play_filter_noise_way0() {
 	// audioElement.src = URL.createObjectURL(sourceElement);
 	// RESULT: TypeError: URL.createObjectURL: Argument 1 is not valid for any of the 1-argument overloads.
 	// OR
-	audioElement.src = sourceElement.toDataURL("audio/mp3");
+	// audioElement.src = sourceElement.toDataURL("audio/mp3");
+	// RESULT: TypeError: sourceElement.toDataURL is not a function
 
 	// -------------------
 
-	// make audioElement visible
+	// Make audioElement visible
 	document.getElementById('data_display').appendChild(audioElement);
 
 	// -------------------
@@ -129,13 +130,29 @@ async function play_filter_noise_way1() {
 
 	// Create an SourceElement (audioSourceNode)
 	var sourceElement = document.createElement('source');
+
+	// -------------------
+
+	// Add array to the audio sourceElement
 	sourceElement.buffer = WhiteNoise_ArrayBuffer;
 	// <source> element has no “src” attribute. Media resource load failed.
-	sourceElement.src = sourceElement.toDataURL("audio/mp3");
+	
+	// sourceElement.src = sourceElement.toDataURL("audio/mp3");
+	// RESULT: TypeError: sourceElement.toDataURL is not a function
 
+	sourceElement.src = WhiteNoise_ArrayBuffer.toDataURL("audio/mp3");
+	
+	// -------------------
+	
 	audioElement.appendChild(sourceElement);
+
+	// -------------------
+
+	// Make audioElement visible
 	document.getElementById('data_display').appendChild(audioElement);
 
+	// -------------------
+	
 	// RESULT: The button nor the audio play the noise
 }
 	
@@ -145,9 +162,21 @@ async function play_filter_noise_way2() {
 	
 	const audioElement = await create_an_audioElement();
 	
-	const WhiteNoise_ArrayBuffer = await create_white_noise();
+	// const WhiteNoise_ArrayBuffer = await create_white_noise();
+
+	// Create an array of white noise data
+	const whiteNoiseData_TypeArray = new Float32Array(44100); // Assuming 44100 samples for 1 second of audio
 	
-	const blob_object = new Blob([WhiteNoise_ArrayBuffer], {type: "audio/mp3"});
+	for (let i = 0; i < whiteNoiseData_TypeArray.length; i++) {
+	    whiteNoiseData_TypeArray[i] = Math.random() * 2 - 1; // Generate random values between -1 and 1
+	}
+
+	
+	
+	// const blob_object = new Blob([WhiteNoise_ArrayBuffer], {type: "audio/mp3"});
+	// OR
+	const blob_object = new Blob([whiteNoiseData_TypeArray], {type: "audio/mp3"});
+	
 	audioElement.src = URL.createObjectURL(blob_object);
 	// Media resource blob:https://codesolutions2.github.io/16be201d-b21b-4953-83ed-fbfa201c4bdd could not be decoded, error: Error Code: NS_ERROR_DOM_MEDIA_METADATA_ERR (0x806e0006)
 
@@ -157,6 +186,25 @@ async function play_filter_noise_way2() {
 }
 	
 // -----------------------------------------------
+
+async function analyse_audioElement(audioContext) {
+
+	// Create an AnalyserNode
+	const analyserNode = audioContext.createAnalyser();
+	console.log('analyserNode: ', analyserNode);
+
+	let channels = analyserNode.channelCount; // 2
+	let time_length = analyserNode.context.currentTime; // 354.976
+	
+	let fs = analyserNode.context.sampleRate; // 48000
+	
+	var time_sample = 1/fs; // every time_sample there is a data point, 0.000020833333333333333
+	console.log('time_sample: ', time_sample);
+
+	// **** not a correct value = 0
+	const data_point_length = time_length // time_sample;  // frameCount, 16992000
+	console.log('data_point_length: ', data_point_length);
+}
 
 	
 
