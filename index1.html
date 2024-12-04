@@ -31,16 +31,20 @@ async function create_white_noise() {
 
 	const audioContext = new AudioContext();
 
+	// -------------------
+	
 	// Transform audiodata into correct format for source.buffer
 	// https://developer.mozilla.org/en-US/docs/Web/API/BaseAudioContext/createBufferSource
 	const time_seconds = 2.0;
-	
+
+	// -------------------
+
+	// Create an arrayBuffer
 	const channels = 2; 
 	const frameCount = audioContext.sampleRate * time_seconds; // sample_length
 	const sampleRate = audioContext.sampleRate; // sample_rate
-  
 	const WhiteNoise_ArrayBuffer = audioContext.createBuffer(channels, frameCount, sampleRate);
-
+	
 	for (let channel=0; channel<channels; channel++) {
 		
 		// Fill the buffer with audio data
@@ -54,28 +58,17 @@ async function create_white_noise() {
 			channelData_test[i] = Math.random() * 2 - 1;
 		}
 	}
+	console.log('WhiteNoise_ArrayBuffer: ', WhiteNoise_ArrayBuffer);
+
+	// -------------------
+	
+	// Convert ArrayBuffer to a TypedArray
+
+
+	
 	return [audioContext, WhiteNoise_ArrayBuffer];
 }
 
-// -----------------------------------------------
-	
-async function create_an_audioElement() {
-
-	// Create an AudioElement
-	const audioElement = document.createElement('audio');
-	// OR
-	// const audioElement = new Audio();
-	
-	audioElement.setAttribute("controls", true);
-	audioElement.setAttribute('crossOrigin', "anonymous"); // OR "anonymous"
-	audioElement.setAttribute('autoplay', true);
-	audioElement.setAttribute('preload', "auto");
-
-	// https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/volume
-	audioElement.volume = 0.1; 
-
-	return audioElement;
-}
 
 // -----------------------------------------------
 
@@ -155,31 +148,6 @@ async function play_filter_noise_way1() {
 	
 	// RESULT: The button nor the audio play the noise
 }
-	
-// -----------------------------------------------
-
-async function convert_Typedarray_to_ASCII_str(TypedArray) {
-	
-	// Convert TypedArray to normalArray
-	const normalArray = await Array.from(TypedArray.data);
-	// console.log('normalArray: ', normalArray)
-	
-	// Convert [normalArray of bytes] to text_characters
-	var ASCII_stringArray = normalArray.map((val) => { return String.fromCharCode(val); });
-	// console.log('ASCII_stringArray: ', ASCII_stringArray);
-	
-	// Join all the ASCII characters to form a string
-	var ASCII_str = ASCII_stringArray.join('');
-	// console.log("ASCII_str: ", ASCII_str);
-	
-	// Transform ASCII string into a base64 string
-	var base64_string = btoa(ASCII_str);
-	// console.log("base64_string: ", base64_string);
-
-	// -----------------------------
-
-	return [ASCII_str, base64_string];
-}
 
 // -----------------------------------------------
 
@@ -198,7 +166,8 @@ async function play_filter_noise_way2() {
 	for (let i = 0; i < whiteNoiseData_TypeArray.length; i++) {
 	    whiteNoiseData_TypeArray[i] = Math.random() * 2 - 1; // Generate random values between -1 and 1
 	}
-
+	console.log('whiteNoiseData_TypeArray: ', whiteNoiseData_TypeArray);
+	
 	// -----------------------------
 	
 	// Convert audio data array to ASCII_str
@@ -232,6 +201,35 @@ async function play_filter_noise_way2() {
 	
 	// -----------------------------
 }
+
+
+
+
+
+
+	
+
+// -----------------------------------------------
+// SUBFUNCTIONS
+// -----------------------------------------------
+	
+async function create_an_audioElement() {
+
+	// Create an AudioElement
+	const audioElement = document.createElement('audio');
+	// OR
+	// const audioElement = new Audio();
+	
+	audioElement.setAttribute("controls", true);
+	audioElement.setAttribute('crossOrigin', "anonymous"); // OR "anonymous"
+	audioElement.setAttribute('autoplay', true);
+	audioElement.setAttribute('preload', "auto");
+
+	// https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/volume
+	audioElement.volume = 0.1; 
+
+	return audioElement;
+}
 	
 // -----------------------------------------------
 
@@ -253,6 +251,37 @@ async function analyse_audioElement(audioContext) {
 	const data_point_length = time_length // time_sample;  // frameCount, 16992000
 	console.log('data_point_length: ', data_point_length);
 }
+
+// -----------------------------------------------
+
+async function convert_Typedarray_to_ASCII_str(TypedArray) {
+	
+	// Convert TypedArray to normalArray
+	const normalArray = await Array.from(TypedArray.data);
+	// console.log('normalArray: ', normalArray)
+	
+	// Convert [normalArray of bytes] to text_characters
+	var ASCII_stringArray = normalArray.map((val) => { return String.fromCharCode(val); });
+	// console.log('ASCII_stringArray: ', ASCII_stringArray);
+	
+	// Join all the ASCII characters to form a string
+	var ASCII_str = ASCII_stringArray.join('');
+	// console.log("ASCII_str: ", ASCII_str);
+	
+	// Transform ASCII string into a base64 string
+	var base64_string = btoa(ASCII_str);
+	// console.log("base64_string: ", base64_string);
+
+	// -----------------------------
+
+	return [ASCII_str, base64_string];
+}
+
+// -----------------------------------------------
+
+// -----------------------------------------------
+
+// -----------------------------------------------
 
 // -----------------------------------------------
 
