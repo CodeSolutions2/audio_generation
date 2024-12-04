@@ -207,7 +207,7 @@ async function play_filter_noise_way4() {
 	const [ASCII_str, base64_string] = await convert_Float32Array_to_ASCII_str(WhiteNoiseData_TypeArray)
 
 	// Add the audio header on the string, so the audioElement can understand
-	// const header_base64_string = 'data:audio\/mpeg;base64,'+base64_string;
+	// const header_base64_string = 'data:audio/mp3;base64,'+base64_string;
 	
 	// Convert WhiteNoiseData_TypeArray to arraybuffer
 	// var url = await fetch(header_base64_string)
@@ -221,7 +221,6 @@ async function play_filter_noise_way4() {
 		.then(response => response.arrayBuffer())
 		.then(async function(arraybuffer) { 
 			console.log('arraybuffer: ', arraybuffer);  // ArrayBuffer { byteLength: 9379 }
-			audioContext = new AudioContext(); 
 			return audioContext.decodeAudioData(arraybuffer); 
 		})
 		.then(async function(decoded_audiobuffer) { 
@@ -262,17 +261,16 @@ async function play_filter_noise_way5() {
 	const normalArray = await Array.from(WhiteNoiseData_TypeArray);
 
 	// Convert an Array to an ArrayBuffer
-	const length = WhiteNoiseData_TypeArray.length;
-	var arrayBuffer = new ArrayBuffer(length);
-	var Float32ArrayView = new Float32Array(arrayBuffer);
-	for (let i=0; i<length; i++) {
+	var arrayBuffer = await new ArrayBuffer(WhiteNoiseData_TypeArray.length);
+	var Float32ArrayView = await new Float32Array(arrayBuffer);
+	for (let i=0; i<WhiteNoiseData_TypeArray.length; i++) {
 		Float32ArrayView[i] = normalArray[i];
 	}
 	console.log('arrayBuffer:', arrayBuffer);
 
 	// -----------------------------
 	
-	await audioContext.decodeAudioData(arraybuffer)
+	var url = await audioContext.decodeAudioData(arraybuffer)
 		.then(async function(decoded_audiobuffer) { 
 			console.log('decoded_audiobuffer: ', decoded_audiobuffer);
 			
@@ -345,6 +343,7 @@ async function create_audio_data() {
 	const frameCount = audioContext.sampleRate * duration_seconds; // sample_length
 	const sampleRate = audioContext.sampleRate; // sample_rate
 	const WhiteNoise_AudioBuffer = audioContext.createBuffer(channels, frameCount, sampleRate);
+	WhiteNoise_AudioBuffer.contentType = 'audio/mp3';
 	
 	for (let channel=0; channel<channels; channel++) {
 		
