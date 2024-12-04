@@ -7,8 +7,6 @@
 <ol type="A">
 	<li>Click on filter_noise to play white noise.</li>
 </ol>
-	
-<!-- <audio controls=true id="audioElement" preload="auto" style="display:block"></audio> -->
 
 
 <div id="data_display" style="display:block; text-align: left; width: 600px;"></div>
@@ -94,7 +92,7 @@ async function play_filter_noise_way0() {
 	//  To play an entire `source.buffer` using `source` in JavaScript, you can set the `source.start(0)` method to start playing the audio from the beginning.
 	sourceElement.start(0);
 
-	audioElement.appendChild(sourceElement);
+	// audioElement.appendChild(sourceElement);
 	document.getElementById('data_display').appendChild(audioElement);
 
 	// RESULT: It plays with the button, but not with the audio controls
