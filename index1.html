@@ -8,7 +8,10 @@
 	<li>Click on filter_noise to play white noise.</li>
 </ol>
 
+<input type="range" id="slider_id" name="slider_name" min="1" max="10" /><label for="slider_name">noise amplitude</label>
 
+
+	
 <div id="data_display" style="display:block; text-align: left; width: 600px;"></div>
 	
 <button id="play_filter_noise_way0" onclick="play_filter_noise_way0()" style="display:block">play_filter_noise_way0</button>
@@ -19,7 +22,27 @@
 <button id="play_filter_noise_way5" onclick="play_filter_noise_way5()" style="display:block">play_filter_noise_way5</button>
 
 
+<!-- ---------------------------------------- -->
+<!-- CSS -->
+<style>
 
+.slider_class { position: relative; display: inline-block; width: 20px; height: 60px; border: 0.25px solid black; border-radius: 5px; }
+
+.slider {position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #333333;
+  -webkit-transition: .4s;
+  transition: .4s;
+	border-radius: 5px;
+	border: 0.25px solid black;}
+</style>
+
+
+	
 	
 <script>
 
@@ -72,10 +95,6 @@ async function play_filter_noise_way0() {
 	sourceElement.start(0);
 
 	// -------------------
-
-	await analyse_audioElement(audioContext);
-	
-	// RESULT: It plays with the button, but not with the audio controls
 }
 
 // -----------------------------------------------
@@ -353,7 +372,13 @@ async function create_audio_data() {
 		// One knows the length of channelData_test because of the designated sample_length and sample_rate
 		// frameCount OR channelData_AudioBuffer.length
 		for (let i = 0; i < channelData_AudioBuffer.length; i++) {
-			channelData_AudioBuffer[i] = Math.random() * 2 - 1; // Generate random values between -1 and 1
+
+			// Math.random() generates a number from 0 and less than 1.
+			var random_val_from_0_to_10 = Math.random() * document.getElementById("slider_id").value;
+			
+			channelData_AudioBuffer[i] = (random_val_from_0_to_10/document.getElementById("slider_id").max) * 2 - 1
+
+			// Math.random() * 2 - 1// Generate random values between -1 and 1
 		}
 	}
 	console.log('WhiteNoise_AudioBuffer: ', WhiteNoise_AudioBuffer);
