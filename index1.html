@@ -204,7 +204,7 @@ async function play_filter_noise_way4() {
 	// DOMException: The buffer passed to decodeAudioData contains an unknown content type.
 	
 	// Convert WhiteNoiseData_TypeArray to arraybuffer
-	var url = await fetch(base64_string)
+	var url = await fetch(WhiteNoise_AudioBuffer)
 		.then(response => response.arrayBuffer())
 		.then(async function(arraybuffer) { 
 			return audioContext.decodeAudioData(arraybuffer); 
