@@ -167,11 +167,12 @@ async function play_filter_noise_way2() {
 	    whiteNoiseData_TypeArray[i] = Math.random() * 2 - 1; // Generate random values between -1 and 1
 	}
 	console.log('whiteNoiseData_TypeArray: ', whiteNoiseData_TypeArray);
+	// buffer, byteLength, byteOffset, length
 	
 	// -----------------------------
 	
 	// Convert audio data array to ASCII_str
-	const [ASCII_str, base64_string] = await convert_Typedarray_to_ASCII_str(whiteNoiseData_TypeArray)
+	const [ASCII_str, base64_string] = await convert_Float32Array_to_ASCII_str(whiteNoiseData_TypeArray)
 	
 	// Add the audio header on the string, so the audioElement can understand
 	const header_base64_string = 'data:audio\/mpeg;base64,'+base64_string;
@@ -254,10 +255,10 @@ async function analyse_audioElement(audioContext) {
 
 // -----------------------------------------------
 
-async function convert_Typedarray_to_ASCII_str(TypedArray) {
+async function convert_Float32Array_to_ASCII_str(Float32Array) {
 	
 	// Convert TypedArray to normalArray
-	const normalArray = await Array.from(TypedArray.data);
+	const normalArray = await Array.from(Float32Array);
 	// console.log('normalArray: ', normalArray)
 	
 	// Convert [normalArray of bytes] to text_characters
