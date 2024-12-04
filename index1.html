@@ -15,6 +15,7 @@
 <button id="play_filter_noise_way1" onclick="play_filter_noise_way1()" style="display:block">play_filter_noise_way1</button>
 <button id="play_filter_noise_way2" onclick="play_filter_noise_way2()" style="display:block">play_filter_noise_way2</button>
 <button id="play_filter_noise_way3" onclick="play_filter_noise_way3()" style="display:block">play_filter_noise_way3</button>
+<button id="play_filter_noise_way4" onclick="play_filter_noise_way4()" style="display:block">play_filter_noise_way4</button>
 	
 <script>
 
@@ -181,7 +182,47 @@ async function play_filter_noise_way3() {
 
 // -----------------------------------------------
 
+// Fetch on base64_string - get blob_object - url
+async function play_filter_noise_way4() {
+	
+	const audioElement = await create_an_audioElement();
 
+	// -----------------------------
+	
+	const [audioContext, WhiteNoise_AudioBuffer, WhiteNoiseData_TypeArray] = await create_audio_data();
+	// WhiteNoise_AudioBuffer:  AudioBuffer { sampleRate: 48000, length: 96000, duration: 2, numberOfChannels: 2 }
+	// WhiteNoiseData_TypeArray: buffer, byteLength, byteOffset, length
+	
+	// -----------------------------
+
+	// Convert audio data array to ASCII_str
+	const [ASCII_str, base64_string] = await convert_Float32Array_to_ASCII_str(WhiteNoiseData_TypeArray)
+
+	// Add the audio header on the string, so the audioElement can understand
+	const header_base64_string = 'data:audio\/mpeg;base64,'+base64_string;
+	
+	// Convert WhiteNoiseData_TypeArray to arraybuffer
+	var url = await fetch(header_base64_string)
+		.then(response => response.arrayBuffer())
+		.then(async function(arraybuffer) { 
+			return audioContext.decodeAudioData(arraybuffer); 
+		})
+		.then(async function(decoded_audiobuffer) { 
+			return URL.createObjectURL(decoded_audiobuffer);
+		})
+	
+	console.log('url: ', url);
+
+	// -----------------------------
+	
+	audioElement.src = url;
+
+	// -----------------------------
+	
+	document.getElementById('data_display').appendChild(audioElement);
+	
+	// -----------------------------
+}
 
 // -----------------------------------------------
 
