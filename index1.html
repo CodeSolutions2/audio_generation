@@ -8,12 +8,20 @@
 	<li>Click on filter_noise to play white noise.</li>
 </ol>
 	
-<audio controls=true id="audioElement" preload="auto" style="display:block"></audio>
-  
-<button id="filter_noise" onclick="filter_noise()" style="display:block">filter_noise</button>
+<!-- <audio controls=true id="audioElement" preload="auto" style="display:block"></audio> -->
 
+
+<div id="data_display" style="display:block; text-align: left; width: 600px;"></div>
+	
+<button id="play_filter_noise_way0" onclick="play_filter_noise_way0()" style="display:block">play_filter_noise_way0</button>
+<button id="play_filter_noise_way1" onclick="play_filter_noise_way1()" style="display:block">play_filter_noise_way1</button>
+
+
+	
 <script>
 
+
+// The audioContext via the audioElement can play Float32Array data.
 // var audioContext = new (window.AudioContext || window.webkitAudioContext)();
 // OR
 const audioContext = new AudioContext();
@@ -24,52 +32,97 @@ const audioContext = new AudioContext();
 document.getElementById("audio_input_display_js").volume = 0.1; 
 
 // ----------------------------------------------------
-	
-async function filter_noise() {
-	
-	// Play the music/audio file
-	
+
+async function create_white_noise() {
+
 	// Transform audiodata into correct format for source.buffer
 	// https://developer.mozilla.org/en-US/docs/Web/API/BaseAudioContext/createBufferSource
-	let channels = 2; 
-	let frameCount = audioContext.sampleRate * 2.0; // sample_length
-	let sampleRate = audioContext.sampleRate; // sample_rate
+	const time_seconds = 2.0;
+	
+	const channels = 2; 
+	const frameCount = audioContext.sampleRate * time_seconds; // sample_length
+	const sampleRate = audioContext.sampleRate; // sample_rate
   
-	const myArrayBuffer = audioContext.createBuffer(channels, frameCount, sampleRate);
+	const WhiteNoise_ArrayBuffer = audioContext.createBuffer(channels, frameCount, sampleRate);
 
 	for (let channel=0; channel<channels; channel++) {
 		
 		// Fill the buffer with audio data
-		const channelData_test = myArrayBuffer.getChannelData(channel); // Access the channel data for the first channel
+		const channelData_test = WhiteNoise_ArrayBuffer.getChannelData(channel); // Access the channel data for the first channel
 	
 		// One knows the length of channelData_test because of the designated sample_length and sample_rate
 		// frameCount OR channelData_test.length
 		for (let i = 0; i < channelData_test.length; i++) {
+
+			// White noise equation
 			channelData_test[i] = Math.random() * 2 - 1;
 		}
 	}
-				
-	var source = audioContext.createBufferSource(document.getElementById("audioElement"));
-	source.buffer = myArrayBuffer;
+	return WhiteNoise_ArrayBuffer;
+}
+
+// -----------------------------------------------
+	
+async function create_an_audioElement() {
+
+	// Create an AudioElement
+	const audioElement = document.createElement('audio');
+	// OR
+	// const audioElement = new Audio();
+	
+	audioElement.setAttribute("controls", true);
+	audioElement.setAttribute('crossOrigin', "anonymous"); // OR "anonymous"
+	audioElement.setAttribute('autoplay', true);
+	audioElement.setAttribute('preload', "auto");
+
+	return audioElement;
+}
+
+// -----------------------------------------------
+
+async function play_filter_noise_way0() {
+
+	const audioElement = await create_an_audioElement();
+	
+	const WhiteNoise_ArrayBuffer = await create_white_noise();
+
+	// Array is given to sourceElement
+	var source = audioContext.createBufferSource(audioElement);
+	source.buffer = WhiteNoise_ArrayBuffer;
 	source.id = "sourceElement";			
 	source.connect(audioContext.destination);
 
-  // OR
-
-  // Create blob - blob URL - give blobURL to audioElement
-  const blob_object = new Blob(myArrayBuffer, {type: "audio/mp3"});
-  audioElement.src = URL.createObjectURL(blob_object);
-  
-
 	//  To play an entire `source.buffer` using `source` in JavaScript, you can set the `source.start(0)` method to start playing the audio from the beginning.
-	source.start(0); // WORKS!!
+	source.start(0);
+}
 
-	// The audioContext via the audioElement can play Float32Array data.
+// -----------------------------------------------
+	
+async function play_filter_noise_way1() {
+	
+	const audioElement = await create_an_audioElement();
+	
+	const WhiteNoise_ArrayBuffer = await create_white_noise();
+
+	// Create an SourceElement (audioSourceNode)
+	var sourceElement = document.createElement('source');
+	sourceElement.buffer = WhiteNoise_ArrayBuffer;
+
+	audioElement.appendChild(sourceElement);
+	
+	document.getElementById('data_display').appendChild(audioElement);
 
 }
 
 // ----------------------------------------------------
 
+	
+  // Create blob - blob URL - give blobURL to audioElement
+  // const blob_object = new Blob(myArrayBuffer, {type: "audio/mp3"});
+  // audioElement.src = URL.createObjectURL(blob_object);
+  
+
+	
 
 </script>
 </body>
