@@ -42,6 +42,8 @@ async function play_filter_noise_way0() {
 	// -------------------
 	
 	// Allows audio to be changed(play, pause, etc) from audioElement
+	 audioElement.src = WhiteNoise_AudioBuffer;
+	// OR
 	// audioElement.appendChild(sourceElement);
 	// RESULT: Node append error
 	// OR
@@ -207,6 +209,8 @@ async function play_filter_noise_way4() {
 	var url = await fetch(WhiteNoise_AudioBuffer)
 		.then(response => response.arrayBuffer())
 		.then(async function(arraybuffer) { 
+			console.log('arraybuffer: ', arraybuffer);
+			
 			return audioContext.decodeAudioData(arraybuffer); 
 		})
 		.then(async function(decoded_audiobuffer) { 
