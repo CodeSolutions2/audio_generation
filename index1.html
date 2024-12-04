@@ -123,28 +123,6 @@ async function create_audio_data(audioContext) {
 }
 	
 // -----------------------------------------------
-
-async function analyse_audioElement(audioContext) {
-
-	// Create an AnalyserNode
-	const analyserNode = audioContext.createAnalyser();
-	console.log('analyserNode: ', analyserNode);
-
-	let channels = analyserNode.channelCount; // 2
-	let time_length = analyserNode.context.currentTime; // 354.976
-	
-	let fs = analyserNode.context.sampleRate; // 48000
-	
-	var time_sample = 1/fs; // every time_sample there is a data point, 0.000020833333333333333
-	console.log('time_sample: ', time_sample);
-
-	// **** not a correct value = 0
-	const data_point_length = time_length // time_sample;  // frameCount, 16992000
-	console.log('data_point_length: ', data_point_length);
-}
-
-// -----------------------------------------------
-
 	
 
 </script>
