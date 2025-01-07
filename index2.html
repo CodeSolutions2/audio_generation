@@ -93,9 +93,11 @@ async function create_2_seconds_of_sound() {
 	await sourceElement.start(0);
 
   document.getElementById("counter_display").textContent = await Number(document.getElementById("counter_display").textContent) + 1;
-  
+  console.log('counter_display: ', Number(document.getElementById("counter_display").textContent));
+	
   await new Promise(r => setTimeout(r, 500));
-  
+
+	console.log('create_2_seconds_of_sound after setTimeout: ');
 }
   
 // -----------------------------------------------
