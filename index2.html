@@ -57,7 +57,7 @@ async function play_filter_noise() {
 		if (Number(document.getElementById("counter_display").textContent) < 720) {
 			// keep running
 			console.log('keep running: ', 'keep running');
-			await create_2_seconds_of_sound();
+			await play_filter_noise();
 		} else {
 			// stop running - do nothing
 			console.log('stop running - do nothing')
@@ -68,7 +68,7 @@ async function play_filter_noise() {
 		console.log('reset count: ', 'reset count');
 		slider_changed = false;
 		document.getElementById("counter_display").textContent = 0;
-		await create_2_seconds_of_sound();
+		await play_filter_noise();
 	}
 
 	// -------------------
