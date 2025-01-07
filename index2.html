@@ -10,7 +10,7 @@
 
 
 <h2>noise amplitude</h2>
-<input type="range" id="slider_id" name="slider_name" min="1" max="10"/>
+<input type="range" id="slider" value=0 name="slider_name" min="1" max="10"/>
 <div id="slider_value" style="display:block; text-align: left; width: 600px;"></div>
 
 <div id="data_display" style="display:block; text-align: left; width: 600px;"></div>
@@ -35,8 +35,8 @@ window.addEventListener('beforeunload', function() {
 	window.location.href = window.location.href + '?nocache=' + new Date().getTime();
 	document.getElementById("counter_display").textContent = 0;
 
-	document.getElementById("slider_id").value = 0;
-	document.getElementById("slider_value").textContent = document.getElementById("slider_id").value;
+	// document.getElementById("slider").value = 0;
+	document.getElementById("slider_value").textContent = document.getElementById("slider").value;
 });
 	
 // -----------------------------------------------
@@ -98,7 +98,7 @@ var slider_changed = false;
 	
 async function processEvent_slider_change(event) {
 	
-	const slider_value = document.getElementById("slider_id").value;
+	const slider_value = document.getElementById("slider").value;
 	console.log('slider_value: ', slider_value);
 	
 	document.getElementById("slider_value").textContent = slider_value;
@@ -107,7 +107,7 @@ async function processEvent_slider_change(event) {
 	slider_changed = true;
 }
 	
-document.getElementById("slider_id").addEventListener("change", processEvent_slider_change, false);
+document.getElementById("slider").addEventListener("change", processEvent_slider_change, false);
 
 // -----------------------------------------------
 
@@ -163,9 +163,9 @@ async function create_audio_data(audioContext) {
 		for (let i = 0; i < channelData_AudioBuffer.length; i++) {
 
 			// Math.random() generates a number from 0 and less than 1.
-			var random_val_from_0_to_10 = Math.random() * document.getElementById("slider_id").value;
+			var random_val_from_0_to_10 = Math.random() * document.getElementById("slider").value;
 			
-			channelData_AudioBuffer[i] = (random_val_from_0_to_10/document.getElementById("slider_id").max) * 2 - 1
+			channelData_AudioBuffer[i] = (random_val_from_0_to_10/document.getElementById("slider").max) * 2 - 1
 
 			// Math.random() * 2 - 1// Generate random values between -1 and 1
 		}
