@@ -26,7 +26,7 @@
   
 const audioElement = create_an_audioElement();
 
-
+const audioContext = new AudioContext(); // default audioContext.sampleRate is 48000, a common value is 44100
   
 // -----------------------------------------------
 	
@@ -78,10 +78,9 @@ async function play_filter_noise() {
 
 async function create_2_seconds_of_sound() {
 
-	const audioContext = new AudioContext();
-// default audioContext.sampleRate is 48000, a common value is 44100
 	
-  var sourceElement = audioContext.createBufferSource(audioElement);
+	
+	var sourceElement = audioContext.createBufferSource(audioElement);
   
   const [WhiteNoise_AudioBuffer, WhiteNoiseData_TypeArray] = await create_audio_data(audioContext);
 	// WhiteNoise_AudioBuffer:  AudioBuffer { sampleRate: 48000, length: 96000, duration: 2, numberOfChannels: 2 }
@@ -95,7 +94,7 @@ async function create_2_seconds_of_sound() {
   document.getElementById("counter_display").textContent = await Number(document.getElementById("counter_display").textContent) + 1;
   console.log('counter_display: ', Number(document.getElementById("counter_display").textContent));
 	
-  await new Promise(r => setTimeout(r, 500));
+  await new Promise(r => setTimeout(r, 250));
 
 	console.log('create_2_seconds_of_sound after setTimeout: ');
 }
