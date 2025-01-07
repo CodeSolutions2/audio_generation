@@ -83,8 +83,8 @@ async function create_2_seconds_of_sound() {
 	
 	sourceElement.buffer = WhiteNoise_AudioBuffer;
 	sourceElement.id = "sourceElement_id";			
-	sourceElement.connect(audioContext.destination);
-	sourceElement.start(0);
+	await sourceElement.connect(audioContext.destination);
+	await sourceElement.start(0);
 
   document.getElementById("counter_display").textContent = await Number(document.getElementById("counter_display").textContent) + 1;
   
