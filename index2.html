@@ -24,7 +24,7 @@
 
 // -----------------------------------------------
   
-const audioElement = await create_an_audioElement();
+const audioElement = create_an_audioElement();
 
 const audioContext = new AudioContext();
 // default audioContext.sampleRate is 48000, a common value is 44100
@@ -118,7 +118,7 @@ document.getElementById("slider_id").addEventListener("change", processEvent_sli
 // SUBFUNCTIONS
 // -----------------------------------------------
 	
-async function create_an_audioElement() {
+function create_an_audioElement() {
 
 	// Create an AudioElement
 	const audioElement = document.createElement('audio');
